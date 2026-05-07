@@ -1,6 +1,10 @@
 local modname = "Edith Restored"
 
-DeadSeaScrollsMenu.AddChangelog(modname, "v1.2.4", [[{{FSIZE2}}changes
+DeadSeaScrollsMenu.AddChangelog(modname, "v1.2.4", [[{{FSIZE2}}added
+- werewolf costume for red moon
+state red hood
+
+{{FSIZE2}}changes
 - changed smelling salts sprite
 
 {{FSIZE2}}fixes
