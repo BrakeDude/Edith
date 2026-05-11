@@ -32,7 +32,7 @@ local function GetRemainingGrids(player, data)
 end
 
 local OppositeDirectionActions = {
-    [ButtonAction.ACTION_UP] = ButtonAction.ACTION_DOWN,
+    [Direction.UP] = ButtonAction.ACTION_DOWN,
     [Direction.DOWN] = ButtonAction.ACTION_UP,
     [Direction.LEFT] = ButtonAction.ACTION_RIGHT,
     [Direction.RIGHT] = ButtonAction.ACTION_LEFT,
@@ -54,7 +54,6 @@ local function SetDashColor(player, data)
     player:SetColor(Color(2, 2, 2, 1, red), 5, 100, true, false)
     data.RamGlowCounter = 0
 end 
-
 
 ---@param entity Entity
 ---@param radius number 
@@ -87,6 +86,11 @@ function EdithRestored:AddExtraTilesToSlide(data, slides)
     data.EdithTargetMovementPosition = data.EdithTargetMovementPosition + ButtomParams
 end
 
+---@param ent Entity
+local function IsEnemy(ent)
+    return ent:IsActiveEnemy() and ent:IsVulnerableEnemy()
+end
+
 ---@param player EntityPlayer
 ---@param collider? Entity
 local function TriggerDashCollision(player, collider)
@@ -110,10 +114,10 @@ local function TriggerDashCollision(player, collider)
     local ptrHash = GetPtrHash(collider)
 
     if data.SlideHitBlacklist[ptrHash] == true then return end
+    if collider.Type == EntityType.ENTITY_STONEY then return end
+    if not IsEnemy(collider) then return end
 
     Helpers.Stomp(player, StompDamageMult, true, IsBombDash(player, data), true)
-
-    if collider.Type == EntityType.ENTITY_STONEY then return end
 
     data.SlideHitBlacklist[ptrHash] = true
 
@@ -122,7 +126,7 @@ local function TriggerDashCollision(player, collider)
     else
         data.ExtraIFrames = data.ExtraIFrames or 0
         data.ExtraIFrames = data.ExtraIFrames + 5
-    
+
         if GetRemainingGrids(player, data) <= 2 then
             EdithRestored:AddExtraTilesToSlide(data, 1)
         else
@@ -130,7 +134,6 @@ local function TriggerDashCollision(player, collider)
             EdithRestored:StopSlide(data)
         end
     end
-
 end
 
 local function isPressingOppositeDashDirectionKey(player, data)
@@ -348,6 +351,8 @@ function Tainted:OnDashGridCollision(player, index, grid)
 
     if grid:ToPoop() then
         grid:Destroy()
+    else
+        -- EdithRestored:StopSlide(data)
     end
 
     player:SetMinDamageCooldown(30)
