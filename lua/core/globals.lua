@@ -1,6 +1,3 @@
-EdithRestored.HiddenItemManager = include("lua.extraLibs.hidden_item_manager")
-EdithRestored.HiddenItemManager:Init(EdithRestored)
-
 EdithRestored.Room = function()
 	return Game():GetRoom()
 end

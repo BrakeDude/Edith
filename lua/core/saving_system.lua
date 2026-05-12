@@ -24,20 +24,6 @@ function EdithRestored:GetDefaultFileSave(key)
     end
 end
 
-EdithRestored:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, function(_, isSaving)
-    if isSaving then
-        local runSave = EdithRestored:RunSave()
-        runSave.HiddenItemManager = EdithRestored.HiddenItemManager:GetSaveData()
-    end
-end)
-
-EdithRestored:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function(_, isLoading)
-    if isLoading then
-        local runSave = EdithRestored:RunSave()
-        EdithRestored.HiddenItemManager:LoadData(runSave.HiddenItemManager)
-    end
-end)
-
 EdithRestored:AddCallback(EdithRestored.SaveManager.SaveCallbacks.PRE_DATA_LOAD, function(_, data, luaMod)
 	if not luaMod then
         local settings = {
