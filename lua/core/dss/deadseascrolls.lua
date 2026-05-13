@@ -764,7 +764,7 @@ local function UpdateSettingsMenu(show)
 	end
 
 	if not ImGui.ElementExists("edithWindowSettings") then
-		ImGui.CreateWindow("edithWindowSettings", "Settings")
+		ImGui.CreateWindow("edithWindowSettings", "Edith Settings")
 		ImGui.LinkWindowToElement("edithWindowSettings", "edithMenuSettings")
 		ImGui.SetWindowSize("edithWindowSettings", 800, 350)
 	end
