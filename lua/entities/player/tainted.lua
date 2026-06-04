@@ -372,3 +372,19 @@ function Tainted:OnCollectibleCollision(pickup, collider)
     EdithRestored:StopSlide(data)
 end
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PICKUP_COLLISION, Tainted.OnCollectibleCollision, PickupVariant.PICKUP_COLLECTIBLE)
+
+---@param player EntityPlayer
+---@param collider Entity
+function Tainted:OnPlayerCollision(player, collider)
+    if not IsTaintedEdith(player) then return end
+    if not Helpers.IsEnemy(collider) then return end
+
+    local data = EdithRestored:GetData(player)
+
+    EdithRestored:StopSlide(data)
+    if data.RamState then
+        data.RamState = false
+    end
+    -- print("enemy collision")
+end 
+EdithRestored:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Tainted.OnPlayerCollision)
