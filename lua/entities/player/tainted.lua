@@ -344,3 +344,12 @@ function Tainted:edith_Stats(player, cacheFlag)
 	-- end
 end
 EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, Tainted.edith_Stats)
+
+---@param player EntityPlayer
+---@param damage number
+function Tainted:OverrideStompParams(player, damage)
+    if not IsTaintedEdith(player) then return end
+
+    return {StompDamage = damage + 3}
+end 
+EdithRestored:AddCallback(EdithRestored.Enums.Callbacks.ON_EDITH_MODIFY_STOMP, Tainted.OverrideStompParams)
