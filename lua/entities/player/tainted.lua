@@ -16,7 +16,7 @@ local function PlayerCanUseBombs(player)
 end
 
 local function IsBombDash(player, data)
-    return data.ShouldConsumeBomb and PlayerCanUseBombs(player)
+    return data.RamState and data.ShouldConsumeBomb and PlayerCanUseBombs(player)
 end
 
 local function IsDashing(data)
@@ -38,16 +38,6 @@ local OppositeDirectionActions = {
     [Direction.RIGHT] = ButtonAction.ACTION_LEFT,
 }
 
----@param entity Entity
----@param duration integer
----@param pos? Vector
-local function SpawnPepperCreep(entity, duration, pos)
-    local pepperCreep = Isaac.Spawn(EntityType.ENTITY_EFFECT, EdithRestored.Enums.Entities.PEPPER_CREEP.Variant, EdithRestored.Enums.Entities.PEPPER_CREEP.SubType, pos or entity.Position, Vector.Zero, entity):ToEffect() ---@cast pepperCreep EntityEffect
-
-    pepperCreep.Color = Color(0, 0, 0)
-    pepperCreep:SetTimeout(duration)
-end
-
 local function SetDashColor(player, data)
     local red = data.ShouldConsumeBomb and 0.3 or 0
     sfx:Play(SoundEffect.SOUND_STONE_IMPACT, 0.25, 0, false, 2)
@@ -55,17 +45,21 @@ local function SetDashColor(player, data)
     data.RamGlowCounter = 0
 end 
 
----@param entity Entity
----@param radius number 
-local function SpawnPepperOnGridInRadius(entity, radius)
-    local room = game:GetRoom()
-    radius = radius or 10
-    for i = 0, (room:GetGridSize()) do
-		local gridPos = room:GetGridPosition(i)
-        if entity.Position:Distance(gridPos) > radius then goto continue end        
-        SpawnPepperCreep(entity, 150, gridPos)
-		::continue::
+---@param player EntityPlayer
+local function TriggerCollideExplosion(player)
+    local data = EdithRestored:GetData(player)
+
+    if not IsBombDash(player, data) then return end
+
+    player:SetMinDamageCooldown(30)
+
+    game:BombExplosionEffects(player.Position, 100, player.TearFlags, Color.Default, player, 1, false, false)
+
+    EdithRestored:StopSlide(data)
+    if not player:HasGoldenBomb() then
+        player:AddBombs(-1)
     end
+    data.RamState = false
 end
 
 ---@param data table
@@ -99,13 +93,9 @@ local function TriggerDashCollision(player, collider)
 
     if not isDashing then return end
 
-    local StompDamageMult = data.IsInPepper and 1.5 or 1
-
     sfx:Play(SoundEffect.SOUND_MEATY_DEATHS)
 
-    if data.ShouldConsumeBomb and not player:HasGoldenBomb() then        
-        player:AddBombs(-1)
-    end
+    TriggerCollideExplosion(player)
 
     player:SetMinDamageCooldown(30)
 
@@ -117,46 +107,24 @@ local function TriggerDashCollision(player, collider)
     if collider.Type == EntityType.ENTITY_STONEY then return end
     if not IsEnemy(collider) then return end
 
-    Helpers.Stomp(player, StompDamageMult, true, IsBombDash(player, data), true)
+    data.StompDamage = 20
+    Helpers.Stomp(player, 1, true, IsBombDash(player, data), true)
 
     data.SlideHitBlacklist[ptrHash] = true
-
-    if collider.HitPoints <= data.StompDamage then 
-        -- SpawnPepperOnGridInRadius(collider, (collider.Size + 30) * 1.5)
-    else
-        data.ExtraIFrames = data.ExtraIFrames or 0
-        data.ExtraIFrames = data.ExtraIFrames + 5
-
-        if GetRemainingGrids(player, data) <= 2 then
-            EdithRestored:AddExtraTilesToSlide(data, 1)
-        else
-            data.RamState = false
-            EdithRestored:StopSlide(data)
-        end
+    data.ExtraIFrames = data.ExtraIFrames or 0
+    data.ExtraIFrames = data.ExtraIFrames + 5
+    data.SlideHitBlacklist = {}
+    
+    if collider.HitPoints > data.StompDamage then
+        data.RamState = false
+        EdithRestored:StopSlide(data)
     end
 end
-
-local function isPressingOppositeDashDirectionKey(player, data)
-    if not data.EdithTargetMovementDirection then return end
-
-    local moveDir = TSIL.Vector.VectorToDirection(data.EdithTargetMovementDirection)
-
-    for dir, key in pairs(OppositeDirectionActions) do
-        if moveDir ~= dir then goto continue end
-        if not Input.IsActionTriggered(key, player.ControllerIndex) then goto continue end
-
-        EdithRestored:StopSlide(data)
-        data.RamState = false
-        data.StoppedDash = true
-
-        ::continue::
-    end
-end 
 
 ---@param player EntityPlayer
 ---@param data table
 local function IsSlideFinished(player, data)
-    if not data.EdithTargetMovementPosition then return false end
+    if not data.EdithTargetMovementDirection then return false end
 
     return data.SlideCounter ~= 0 and TSIL.Vector.VectorFuzzyEquals(player.Position, data.SlideTarget, 2.1)
 end
@@ -181,11 +149,8 @@ function Tainted:OnTaintedUpdate(player)
     local data = EdithRestored:GetData(player)
     local ctrlIdx = player.ControllerIndex 
 
-    data.TriggerMove = data.TriggerMove or false
     data.SlideCharge = data.SlideCharge or 0
     data.Slidespeed = data.Slidespeed or 0
-    data.StaticSlideCharge = data.StaticSlideCharge or 0
-    data.MoveGrids = data.MoveGrids or 0
     data.ShouldConsumeBomb = data.ShouldConsumeBomb or false
     data.ExtraIFrames = data.ExtraIFrames or 0
     data.SlideHitBlacklist = data.SlideHitBlacklist or {} 
@@ -199,15 +164,24 @@ function Tainted:OnTaintedUpdate(player)
         data.SlideTarget = data.EdithTargetMovementPosition
     end
 
-    if IsDashing(data) and IsSlideFinished(player, data) then
-        data.SlideHitBlacklist = {}
-        player:SetMinDamageCooldown(30)
+    for k, v in pairs(data) do
+        -- print(k, v)
+    end
+    -- print("====================================")
+
+    if IsDashing(data) then
+        if data.InputBuffer then
+            data.InputBuffer = {}
+        end
     end
 
-    --- Spawn pepper creep in the tile Edith is moving from
-    if data.SlideCounter == 1 then
-        -- SpawnPepperCreep(player, 150)
+    if data.RamState and IsSlideFinished(player, data) then
+        player:SetMinDamageCooldown(30)
+        data.SlideHitBlacklist = {}
+        data.RamState = false
+    end
 
+    if data.SlideCounter == 1 then
         if IsDashing(data) then
             sfx:Play(SoundEffect.SOUND_SHELLGAME)
         end
@@ -216,7 +190,6 @@ function Tainted:OnTaintedUpdate(player)
             player:SetMinDamageCooldown(30 + data.ExtraIFrames)
         end
         data.ExtraIFrames = 0
-        data.IsInPepper = false
         data.RamState = false
         data.RamGlowCounter = 0
     end
@@ -233,32 +206,20 @@ function Tainted:OnTaintedUpdate(player)
 
         for _, ent in ipairs(Isaac.FindInCapsule(capsule, EntityPartition.ENEMY)) do
             TriggerDashCollision(player, ent)
-        end 
-        -- SpawnPepperCreep(player, 150)
-
-        isPressingOppositeDashDirectionKey(player, data)
+        end
     end
 
-    if data.SlideCharge >= 100 and Input.IsActionTriggered(ButtonAction.ACTION_BOMB, ctrlIdx) and not EdithRestored:IsEdithSliding(data) then
+    if data.SlideCharge >= 100 and Input.IsActionTriggered(ButtonAction.ACTION_BOMB, ctrlIdx) and not IsDashing(data) then
         data.RamState = true
         data.SlideCharge = 0
         sfx:Play(SoundEffect.SOUND_STONE_IMPACT)
         SetDashColor(player, data)
     end
 
-    if EdithRestored:IsEdithSliding(data) and data.StoppedDash == true then
-        player:SetMinDamageCooldown(30)
-        EdithRestored:StopSlide(data)
-        player.Velocity = Vector.Zero
-        data.StoppedDash = false
-    end
-
-    local speed = (data.IsInPepper and 10 or 5) + (data.RamState and 10 or 0)
+    local speed = (data.RamState and 18 or 6)
     local grids = data.RamState and 5 or 1
 
-    -- if data.SlideCounter and data.SlideCounter > 0 then
     EdithRestored:EdithGridMovement(player, data, speed, grids)
-    -- end
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Tainted.OnTaintedUpdate)
 
@@ -309,37 +270,6 @@ function Tainted:NegateDashDamage(player)
 end
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PLAYER_TAKE_DMG, Tainted.NegateDashDamage)
 
----@param effect EntityEffect
-EdithRestored:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, function(_, effect)
-    if effect.SubType ~= EdithRestored.Enums.Entities.PEPPER_CREEP.SubType then return end
-
-    for _, ent in ipairs(Isaac.FindInRadius(effect.Position, 20 * effect.SpriteScale.X, EntityPartition.PLAYER)) do
-        
-        local player = ent:ToPlayer() ---@cast player EntityPlayer
-        local data = EdithRestored:GetData(player)
-        
-        if EdithRestored:IsEdithSliding(data) then goto continue end
-        data.IsInPepper = true
-        ::continue::
-    end
-end, EdithRestored.Enums.Entities.PEPPER_CREEP.Variant)
-
----@param npc EntityNPC
----@param source EntityRef
-function Tainted:OnEnemyDeath(npc, source)
-    if source.Type == 0 then return end
-
-    local player = TSIL.Players.GetPlayerFromEntity(source.Entity) ---@cast player EntityPlayer?
-
-    if not player then return end
-    if not IsTaintedEdith(player) then return end
-    local data = EdithRestored:GetData(player)
-
-    if IsDashing(data) then return end
-    -- SpawnPepperOnGridInRadius(npc, npc.Size + 30)
-end 
-EdithRestored:AddCallback(ModCallbacks.MC_POST_ENTITY_KILL, Tainted.OnEnemyDeath)
-
 ---@param player EntityPlayer
 ---@param index integer
 ---@param grid GridEntity?
@@ -347,22 +277,21 @@ function Tainted:OnDashGridCollision(player, index, grid)
     if not IsTaintedEdith(player) then return end
     if not grid then return end
 
-    local data = EdithRestored:GetData(player)
-
     if grid:ToPoop() then
         grid:Destroy()
     else
-        -- EdithRestored:StopSlide(data)
+        local data = EdithRestored:GetData(player)
+        EdithRestored:StopSlide(data)
+        TriggerCollideExplosion(player)
+        data.RamState = false
     end
 
     player:SetMinDamageCooldown(30)
-    -- TriggerDashCollision(player)
 end
 EdithRestored:AddCallback(ModCallbacks.MC_PLAYER_GRID_COLLISION, Tainted.OnDashGridCollision)
 
----@param pickup EntityPickup
 ---@param collider Entity
-function Tainted:OnCollectibleCollision(pickup, collider)
+function Tainted:OnCollectibleCollision(collider)
     local player = collider:ToPlayer()
 
     if not player then return end
@@ -381,10 +310,23 @@ function Tainted:OnPlayerCollision(player, collider)
 
     local data = EdithRestored:GetData(player)
 
-    EdithRestored:StopSlide(data)
-    if data.RamState then
+    if data.RamState and collider.HitPoints > data.StompDamage then
         data.RamState = false
+        EdithRestored:StopSlide(data)
+        player.Velocity = (player.Position - collider.Position):Normalized() 
     end
-    -- print("enemy collision")
+    EdithRestored:StopSlide(data)
 end 
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Tainted.OnPlayerCollision)
+
+function Tainted:ResetRamStateOnNewRoom()
+    for _, player in ipairs(PlayerManager.GetPlayers()) do
+        if IsTaintedEdith(player) then
+            local data = EdithRestored:GetData(player)
+            
+            EdithRestored:StopSlide(data)
+            data.RamState = false
+        end
+    end
+end
+EdithRestored:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Tainted.ResetRamStateOnNewRoom)

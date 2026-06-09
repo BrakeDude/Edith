@@ -554,7 +554,9 @@ local function EdithSliding(player, data, hasMarsEffect, hasMegaMush, speedBase,
 		elseif isPressingDown then
 			data.InputBuffer = { input = ButtonAction.ACTION_DOWN, frame = 5 }
 		elseif data.InputBuffer then
-			data.InputBuffer.frame = data.InputBuffer.frame - 1
+			if data.InputBuffer.frame then
+				data.InputBuffer.frame = data.InputBuffer.frame - 1
+			end
 
 			if data.InputBuffer == 0 then
 				data.InputBuffer = nil
@@ -589,7 +591,7 @@ end
 ---@param data table
 ---@return boolean
 function EdithRestored:IsEdithSliding(data)
-	return data.EdithTargetMovementPosition ~= nil
+	return data.EdithTargetMovementDirection ~= nil
 end
 
 ---@param data table
