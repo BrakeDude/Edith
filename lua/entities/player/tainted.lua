@@ -62,6 +62,78 @@ local function TriggerCollideExplosion(player)
     data.RamState = false
 end
 
+---@param tear EntityTear
+local function ChangeToEdithTear(tear)
+	tear:ChangeVariant(TearVariant.ROCK)
+
+	local tearColor = tear.Color
+	local parentColor = tear.Parent.Color
+
+	tear.Color = Color(
+		tearColor.R - 0.4 + (parentColor.R - 1),
+		tearColor.G - 0.35 + (parentColor.G - 1),
+		tearColor.B - 0.35 + (parentColor.B - 1),
+		tearColor.A + (parentColor.A - 1),
+		tearColor.RO + parentColor.RO,
+		tearColor.GO + parentColor.GO,
+		tearColor.BO + parentColor.BO
+	)
+end
+
+local tearsToNotChange = {
+    [TearVariant.TOOTH] = true,
+    [TearVariant.BOBS_HEAD] = true,
+    [TearVariant.SCHYTHE] = true,
+    [TearVariant.CHAOS_CARD] = true,
+    [TearVariant.NAIL] = true,
+    [TearVariant.DIAMOND] = true,
+    [TearVariant.MULTIDIMENSIONAL] = true,
+    [TearVariant.STONE] = true,
+    [TearVariant.BOOGER] = true,
+    [TearVariant.EGG] = true,
+    [TearVariant.RAZOR] = true,
+    [TearVariant.BONE] = true,
+    [TearVariant.BLACK_TOOTH] = true,
+    [TearVariant.NEEDLE] = true,
+    [TearVariant.BELIAL] = true,
+    [TearVariant.EYE] = true,
+    [TearVariant.EYE_BLOOD] = true,
+    [TearVariant.BALLOON] = true,
+    [TearVariant.BALLOON_BRIMSTONE] = true,
+    [TearVariant.BALLOON_BOMB] = true,
+    [TearVariant.FIST] = true,
+    [TearVariant.KEY] = true,
+    [TearVariant.KEY_BLOOD] = true,
+    [TearVariant.ERASER] = true,
+    [TearVariant.FIRE] = true,
+    [TearVariant.SWORD_BEAM] = true,
+    [TearVariant.SPORE] = true,
+    [TearVariant.TECH_SWORD_BEAM] = true,
+    [TearVariant.FETUS] = true,
+    [TearVariant.ICE] = true
+}
+
+---@param tear EntityTear
+---@return boolean
+local function TearsToNotChange(tear)
+	return tearsToNotChange[tear.Variant] or false
+end
+
+---@param tear EntityTear
+function Tainted:OnEdithFireTear(tear)
+	local player = TSIL.Players.GetPlayerFromEntity(tear)
+
+	if not player then return end
+	if not IsTaintedEdith(player) or player:HasCurseMistEffect() or TearsToNotChange(tear) then return end
+
+	ChangeToEdithTear(tear)
+	tear.Scale = tear.Scale * 0.9
+	tear.SpriteScale = tear.SpriteScale * 0.9
+end
+
+EdithRestored:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, Tainted.OnEdithFireTear)
+
+
 ---@param data table
 ---@param slides number
 function EdithRestored:AddExtraTilesToSlide(data, slides)
