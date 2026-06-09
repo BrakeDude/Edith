@@ -1,8 +1,9 @@
+local game = Game()
+EdithRestored.Game = game
+EdithRestored.Level = game:GetLevel()
+
 EdithRestored.Room = function()
-	return Game():GetRoom()
-end
-EdithRestored.Level = function()
-	return Game():GetLevel()
+	return game:GetRoom()
 end
 
 local runData = {

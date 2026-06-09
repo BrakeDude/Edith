@@ -1,6 +1,6 @@
 ---@diagnostic disable: need-check-nil
 local Helpers = EdithRestored.Helpers
-local game = Game()
+local game = EdithRestored.Game
 local Tainted = {}
 local sfx = SFXManager()
 

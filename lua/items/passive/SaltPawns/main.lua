@@ -36,7 +36,6 @@ EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, SaltPawns.Cache, Cache
 
 ---@param familiar EntityFamiliar
 function SaltPawns:Init(familiar)
-	local room = Game():GetRoom()
 	local data = EdithRestored:GetData(familiar)
 	familiar:ClearEntityFlags(EntityFlag.FLAG_APPEAR)
 	--	familiar.Position = room:GetGridPosition(room:GetGridIndex(familiar:ToFamiliar().Player.Position))
@@ -59,7 +58,7 @@ function SaltPawns:Update(familiar)
 	local sprite = familiar:GetSprite()
 	local player = familiar.Player
 	local data = EdithRestored:GetData(familiar)
-	local room = Game():GetRoom()
+	local room = EdithRestored.Room()
 	local bff = familiar.Player:HasCollectible(CollectibleType.COLLECTIBLE_BFFS)
 
 	familiar.Velocity = Vector(0, 0)
@@ -318,7 +317,7 @@ EdithRestored:AddCallback(
 function SaltPawns:NewRoom()
 	for i, f in pairs(Isaac.GetRoomEntities()) do
 		if f.Type == EntityType.ENTITY_FAMILIAR and f.Variant == EdithRestored.Enums.Familiars.SALT_PAWNS.Variant then
-			local room = Game():GetRoom()
+			local room = EdithRestored.Room()
 			local data = EdithRestored:GetData(f)
 			f.Position = room:GetGridPosition(room:GetGridIndex(f:ToFamiliar().Player.Position))
 
@@ -338,7 +337,7 @@ end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, SaltPawns.NewRoom)
 
 function SaltPawns.GetRandomDoor(rng)
-	local room = Game():GetRoom()
+	local room = EdithRestored.Room()
 	local doors = {}
 
 	for i = 1, room:GetGridSize() do
@@ -362,7 +361,7 @@ function SaltPawns.GetRandomDoor(rng)
 end
 
 function SaltPawns.GetClosestDoor(position)
-	local room = Game():GetRoom()
+	local room = EdithRestored.Room()
 	local Closestdoor
 
 	for i = 1, room:GetGridSize() do

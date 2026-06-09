@@ -57,7 +57,7 @@ end
 
 function Peppermint:RenderPepperMintCharge(player)
 	local data = EdithRestored:GetData(player)
-	local room = Game():GetRoom()
+	local room = EdithRestored.Room()
 
 	if room:GetRenderMode() == RenderMode.RENDER_WATER_REFLECT then
 		return

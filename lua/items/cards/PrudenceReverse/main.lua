@@ -5,7 +5,7 @@ function Cards:UseReversePrudence(_, player)
     local slot = TSIL.EntitySpecific.SpawnSlot(
         SlotVariant.CRANE_GAME,
         0,
-        Game():GetRoom():FindFreePickupSpawnPosition(player.Position, 40, true)
+        EdithRestored.Room():FindFreePickupSpawnPosition(player.Position, 40, true)
     )
     TSIL.EntitySpecific.SpawnEffect(EffectVariant.POOF01, 0, slot.Position)
 

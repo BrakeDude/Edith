@@ -2,6 +2,8 @@ if not EID then
 	return
 end
 
+local game = EdithRestored.Game
+
 local iconSprite = Sprite("gfx/ui/eid_edith_icon.anm2", true)
 
 local PlayerIconSprite = Sprite("gfx/ui/eid_edith_players_icons.anm2", true)
@@ -303,7 +305,7 @@ local function SoulEdithCallback(descObj)
 	if HodlingTab() then
 		player = EID.holdTabPlayer
 	elseif descObj and descObj.Entity then
-		player = Game():GetNearestPlayer(descObj.Entity.Position)
+		player = game:GetNearestPlayer(descObj.Entity.Position)
 	end
 	if
 		player
@@ -347,7 +349,7 @@ local function LithiumCondition(descObj)
 end
 
 local function LithiumCallback(descObj)
-	local player = Game():GetNearestPlayer(descObj.Entity.Position)
+	local player = game:GetNearestPlayer(descObj.Entity.Position)
 
 	local horseMul = descObj.ObjSubType > 2048 and 2 or 1
 	if

@@ -7,6 +7,9 @@ moonPhaseSpriteStatic:SetFrame(15)
 local moonPhaseAlpha = moonPhaseSpriteStatic.Color
 moonPhaseAlpha.A = 0
 
+local game = EdithRestored.Game
+local level = EdithRestored.Level
+
 local RedhoodItem = EdithRestored.Enums.CollectibleType.COLLECTIBLE_RED_HOOD
 local RedhoodNull = EdithRestored.Enums.NullItems.RED_HOOD
 local RedhoodWereWolfNull = EdithRestored.Enums.NullItems.RED_HOOD_WEREWOLF
@@ -37,7 +40,7 @@ end
 
 local function IsRedMoonPhase()
 	return EdithRestored:RunSave()["MoonPhaseWolf"] == true
-		or EdithRestored.Level():GetCurses() & LevelCurse.CURSE_OF_DARKNESS > 0
+		or level:GetCurses() & LevelCurse.CURSE_OF_DARKNESS > 0
 		or EdithRestored.Helpers.AnyoneHasNullItem(NullItemID.ID_REVERSE_SUN)
 		or EdithRestored.DebugMode and EdithRestored:GetDebugValue("AlwaysRedMoon")
 end
@@ -387,15 +390,15 @@ EdithRestored:AddCallback(ModCallbacks.MC_USE_CARD, RedHoodLocal.UseCard)
 
 -- -- kittenchilly's Mama Mega Greed Mode Buff code
 function RedHoodLocal:WaveReset()
-	if Game():IsGreedMode() then
+	if game:IsGreedMode() then
 		lastGreedWave = 0
 	end
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, RedHoodLocal.WaveReset)
 
 function RedHoodLocal:OnNewGreedWave()
-	if Game():IsGreedMode() then
-		local greedModeWave = EdithRestored.Level().GreedModeWave
+	if game:IsGreedMode() then
+		local greedModeWave = level.GreedModeWave
 
 		if not lastGreedWave then
 			lastGreedWave = greedModeWave
@@ -407,7 +410,7 @@ function RedHoodLocal:OnNewGreedWave()
 			local plate = nil
 			if
 				room:GetRoomShape() == RoomShape.ROOMSHAPE_1x2
-				and EdithRestored.Level():GetAbsoluteStage() < LevelStage.STAGE7_GREED
+				and level:GetAbsoluteStage() < LevelStage.STAGE7_GREED
 			then
 				plate = room:GetGridEntity(112):ToPressurePlate()
 			end

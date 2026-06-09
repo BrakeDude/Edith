@@ -13,7 +13,7 @@ function PepperGrinder:OnKillPG(entity)
 		return
 	end
 
-	Game():SpawnParticles(entity.Position, EffectVariant.POOF02, 1, 0, Color(0, 0, 0, 1, 0.25, 0.25, 0.25), 1, 0)
+	EdithRestored.Game:SpawnParticles(entity.Position, EffectVariant.POOF02, 1, 0, Color(0, 0, 0, 1, 0.25, 0.25, 0.25), 1, 0)
 
 	for i = 1, 5 do
 		local creep = TSIL.EntitySpecific.SpawnEffect(

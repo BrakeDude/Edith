@@ -1,5 +1,6 @@
 local Lithium = {}
-local itemPool = Game():GetItemPool()
+local game = EdithRestored.Game
+local itemPool = game:GetItemPool()
 
 Lithium.IFRAME_INCREASE_AMOUNT = 20
 Lithium.IFRAME_INCREASE_FALSEPHD_AMOUNT = 5
@@ -66,7 +67,7 @@ local function GetLithiumReplacer()
 end
 
 function Lithium:InitRun(isContinue)
-    RNG:SetSeed(Game():GetSeeds():GetStartSeed(), 35)
+    RNG:SetSeed(game:GetSeeds():GetStartSeed(), 35)
     if not isContinue or type(EdithRestored:RunSave()["LithiumPillReplacer"]) ~= "number" then
        ReplaceLithiumOnNormalPill()
     end

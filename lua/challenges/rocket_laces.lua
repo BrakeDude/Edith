@@ -22,7 +22,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, RocketLases.StaticFire
 
 function RocketLases:NoOverrides()
     if Helpers.IsChallenge(EdithRestored.Enums.Challenges.ROCKET_LACES) then
-        local pools = Game():GetItemPool()
+        local pools = EdithRestored.Game:GetItemPool()
         pools:RemoveCollectible(CollectibleType.COLLECTIBLE_EPIC_FETUS)
         pools:RemoveCollectible(CollectibleType.COLLECTIBLE_HAEMOLACRIA)
         pools:RemoveCollectible(CollectibleType.COLLECTIBLE_MOMS_KNIFE)

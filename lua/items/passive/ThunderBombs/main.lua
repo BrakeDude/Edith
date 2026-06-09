@@ -1,5 +1,6 @@
 local ThunderBombs = {}
 local Helpers = EdithRestored.Helpers
+local game = EdithRestored.Game
 
 ---@param bomb Entity
 ---@return boolean
@@ -66,7 +67,7 @@ end
 
 local function SpawnThunderBombLaser(bomb, parent, position, damage, radius)
 	EdithRestored.Room():DoLightningStrike()
-	Game():MakeShockwave(bomb.Position, .035, .01, 10)
+	game:MakeShockwave(bomb.Position, .035, .01, 10)
 
 	local ring = Isaac.Spawn(EntityType.ENTITY_LASER, LaserVariant.THIN_RED, LaserSubType.LASER_SUBTYPE_RING_FOLLOW_PARENT, position, Vector.Zero, parent):ToLaser()
 	ring.Radius = 80 * (bomb.RadiusMultiplier and bomb.RadiusMultiplier or 1)
@@ -118,7 +119,7 @@ function ThunderBombs:EdithStompThunderBomb(player, bombDamage, position, radius
 			if DoesItemSlotHaveCharge(player, i) then
 				local prevCharge = Helpers.GetCharge(player, i)
 				player:AddActiveCharge(-math.min(usedCharges, 3), i)
-				Game():GetHUD():FlashChargeBar(player, i)
+				game:GetHUD():FlashChargeBar(player, i)
 				usedCharges = usedCharges - (prevCharge - Helpers.GetCharge(player, i))
 				charge = charge - usedCharges
 				if (usedCharges) <= 0 then
@@ -169,7 +170,7 @@ function ThunderBombs:BombRender(bomb)
 	local data = EdithRestored:GetData(bomb)
 
 	if data.ThunderBombsOverlay then
-		if bomb.FrameCount % 2 == 0 and not Game():IsPaused() then
+		if bomb.FrameCount % 2 == 0 and not game:IsPaused() then
 			data.ThunderBombsOverlay:Update()
 		end
 		if bomb.Variant == BombVariant.BOMB_TROLL or bomb.Variant == BombVariant.BOMB_SUPERTROLL then
@@ -228,7 +229,7 @@ function ThunderBombs:TryPlaceBomb(player)
 						placeBomb = true
 						local prevCharge = Helpers.GetCharge(player, i)
 						player:AddActiveCharge(-math.min(usedCharges, 3), i)
-						Game():GetHUD():FlashChargeBar(player, i)
+						game:GetHUD():FlashChargeBar(player, i)
 						usedCharges = usedCharges - (prevCharge - Helpers.GetCharge(player, i))
 						charge = charge - usedCharges
 						if (usedCharges) <= 0 then

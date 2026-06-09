@@ -1,7 +1,7 @@
 local BlockDisabledItems = {}
 local Helpers = EdithRestored.Helpers
 
-local itemPool = Game():GetItemPool()
+local itemPool = EdithRestored.Game:GetItemPool()
 local itemConfig = Isaac.GetItemConfig()
 
 local lookupTables = {

@@ -1,4 +1,5 @@
 local Helpers = {}
+local game = EdithRestored.Game
 
 local stompPoolsList = { Items = {}, Trinkets = {} }
 local turretList = {
@@ -859,7 +860,7 @@ end
 ---@param force boolean?
 function Helpers.UnlockAchievement(achievement, force) -- from Community Remix
 	if not force then
-		if not Game():AchievementUnlocksDisallowed() then
+		if not game:AchievementUnlocksDisallowed() then
 			if not Isaac.GetPersistentGameData():Unlocked(achievement) then
 				Isaac.GetPersistentGameData():TryUnlock(achievement)
 			end
@@ -1078,7 +1079,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 		or bdType == 43
 		or bdType == 44
 	)
-	local level = EdithRestored.Level():GetStage()
+	local level = EdithRestored.Level:GetStage()
 
 	local stompDamage = (1 + (level * 6 / 1.4) + player.Damage * 2.5) * Helpers.Clamp(multiplier, 0.1, multiplier)
 	local bombDamage = 0
@@ -1347,7 +1348,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 			end
 		end
 
-		Game():BombExplosionEffects(stompPosition, bombDamage, player:GetBombFlags(), Color.Default, player)
+		game:BombExplosionEffects(stompPosition, bombDamage, player:GetBombFlags(), Color.Default, player)
 
 		if player:HasCollectible(CollectibleType.COLLECTIBLE_SCATTER_BOMBS) then
 			local rng = player:GetCollectibleRNG(CollectibleType.COLLECTIBLE_SCATTER_BOMBS)
@@ -1359,7 +1360,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 				Isaac.CreateTimer(function()
 					local explosionPosition = Vector.FromAngle(rng:RandomInt(1, 360))
 						:Resized(TSIL.Random.GetRandomFloat(0.1, radius * 1.5, rng))
-					Game():BombExplosionEffects(
+					game:BombExplosionEffects(
 						stompPosition + explosionPosition,
 						bombDamage / 2,
 						player:GetBombFlags(),
@@ -1408,7 +1409,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 		if player:GetTrinketMultiplier(TrinketType.TRINKET_RING_CAP) > 0 then
 			for i = 1, player:GetTrinketMultiplier(TrinketType.TRINKET_RING_CAP) do
 				local rng = player:GetTrinketRNG(TrinketType.TRINKET_RING_CAP)
-				Game():BombExplosionEffects(
+				game:BombExplosionEffects(
 					stompPosition + Vector.FromAngle(rng:RandomInt(1, 360)):Resized(rng:RandomInt(100) * 0.015),
 					bombDamage,
 					player:GetBombFlags(),
@@ -1420,7 +1421,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 	end
 	--#endregion
 
-	Game():ShakeScreen(10)
+	game:ShakeScreen(10)
 
 	local sound = chap4 and SoundEffect.SOUND_MEATY_DEATHS or SoundEffect.SOUND_STONE_IMPACT
 	SFXManager():Play(sound, 1, 0)
@@ -1637,7 +1638,7 @@ function Helpers.AddTrinketToPool(trinketID)
 	local trinketsNotInPool = {}
 	local trinketsSize = Helpers.GetMaxTrinketID()
 	local itemConfig = Isaac.GetItemConfig()
-	local itemPool = Game():GetItemPool()
+	local itemPool = game:GetItemPool()
 	for i = 1, trinketsSize do
 		if i ~= trinketID then
 			local trinketConf = itemConfig:GetTrinket(i)
