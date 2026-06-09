@@ -330,3 +330,17 @@ function Tainted:ResetRamStateOnNewRoom()
     end
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Tainted.ResetRamStateOnNewRoom)
+
+function Tainted:edith_Stats(player, cacheFlag)
+	if IsTaintedEdith(player) then -- If the player is Edith it will apply her specific stats
+		if cacheFlag == CacheFlag.CACHE_DAMAGE then
+			player.Damage = player.Damage * 1.1
+		end
+	--e3	Helpers.ChangePepperValue(player)
+	end
+	-- if cacheFlag == CacheFlag.CACHE_SPEED and Helpers.IsPlayerEdith(player) 
+	-- and not EdithRestored.Room():HasCurseMist() then
+	-- 	player.MoveSpeed = math.max(0.3, player.MoveSpeed)
+	-- end
+end
+EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, Tainted.edith_Stats)
