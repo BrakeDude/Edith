@@ -338,13 +338,21 @@ local function ManageTEdithDashCollide(player, data, collider)
     if not data.RamState then return end
     if data.SlideHitBlacklist[colPtrHash] then return end
 
-    Helpers.Stomp(player, 1, true, false, true, {Tooth = true})
+    local isBombDash = IsBombDash(player, data)
+
+    Helpers.Stomp(player, 1, true, isBombDash, true)
     data.SlideHitBlacklist[colPtrHash] = true
+
+    if isBombDash and not player:HasGoldenBomb() then
+        player:AddBombs(-1)
+    end
 
     if collider.HitPoints > data.StompDamage then
         data.RamState = false
         EdithRestored:StopSlide(data)
     end
+
+    player:SetMinDamageCooldown(30)
 end
 
 ---@param player EntityPlayer
