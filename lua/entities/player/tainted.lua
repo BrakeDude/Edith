@@ -86,42 +86,6 @@ local function IsEnemy(ent)
 end
 
 ---@param player EntityPlayer
----@param collider? Entity
-local function TriggerDashCollision(player, collider)
-    local data = EdithRestored:GetData(player)
-    local isDashing = IsDashing(data)
-
-    if not isDashing then return end
-
-    sfx:Play(SoundEffect.SOUND_MEATY_DEATHS)
-
-    TriggerCollideExplosion(player)
-
-    player:SetMinDamageCooldown(30)
-
-    if not collider then return end 
-
-    local ptrHash = GetPtrHash(collider)
-
-    if data.SlideHitBlacklist[ptrHash] == true then return end
-    if collider.Type == EntityType.ENTITY_STONEY then return end
-    if not IsEnemy(collider) then return end
-
-    data.StompDamage = 20
-    Helpers.Stomp(player, 1, true, IsBombDash(player, data), true)
-
-    data.SlideHitBlacklist[ptrHash] = true
-    data.ExtraIFrames = data.ExtraIFrames or 0
-    data.ExtraIFrames = data.ExtraIFrames + 5
-    data.SlideHitBlacklist = {}
-    
-    if collider.HitPoints > data.StompDamage then
-        data.RamState = false
-        EdithRestored:StopSlide(data)
-    end
-end
-
----@param player EntityPlayer
 ---@param data table
 local function IsSlideFinished(player, data)
     if not data.EdithTargetMovementDirection then return false end
@@ -199,15 +163,7 @@ function Tainted:OnTaintedUpdate(player)
     if not data.RamState then
         local ChargeAdd = EdithRestored:IsEdithSliding(data) and 1 or 2       
         data.SlideCharge = Helpers.Clamp(data.SlideCharge + ChargeAdd, 0, 100)
-    end
-
-    if IsDashing(data) then
-        local capsule = Capsule(player.Position, Vector.One, 0, 20)
-
-        for _, ent in ipairs(Isaac.FindInCapsule(capsule, EntityPartition.ENEMY)) do
-            TriggerDashCollision(player, ent)
-        end
-    end
+    end  
 
     if data.SlideCharge >= 100 and Input.IsActionTriggered(ButtonAction.ACTION_BOMB, ctrlIdx) and not IsDashing(data) then
         data.RamState = true
@@ -303,19 +259,35 @@ end
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PICKUP_COLLISION, Tainted.OnCollectibleCollision, PickupVariant.PICKUP_COLLECTIBLE)
 
 ---@param player EntityPlayer
+---@param data table
+local function ManageTEdithDashCollide(player, data, collider)
+    local colPtrHash = GetPtrHash(collider)
+
+    if not data.RamState then return end
+    if data.SlideHitBlacklist[colPtrHash] then return end
+
+    Helpers.Stomp(player, 1, true, false, true, {Tooth = true})
+    data.SlideHitBlacklist[colPtrHash] = true
+
+    if collider.HitPoints > data.StompDamage then
+        data.RamState = false
+        EdithRestored:StopSlide(data)
+    end
+end
+
+---@param player EntityPlayer
 ---@param collider Entity
 function Tainted:OnPlayerCollision(player, collider)
     if not IsTaintedEdith(player) then return end
     if not Helpers.IsEnemy(collider) then return end
-
+    
     local data = EdithRestored:GetData(player)
 
-    if data.RamState and collider.HitPoints > data.StompDamage then
-        data.RamState = false
+    ManageTEdithDashCollide(player, data, collider)
+
+    if not data.RamState then
         EdithRestored:StopSlide(data)
-        player.Velocity = (player.Position - collider.Position):Normalized() 
     end
-    EdithRestored:StopSlide(data)
 end 
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Tainted.OnPlayerCollision)
 
@@ -347,9 +319,10 @@ EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, Tainted.edith_Stats)
 
 ---@param player EntityPlayer
 ---@param damage number
-function Tainted:OverrideStompParams(player, damage)
+---@param radius number
+function Tainted:OverrideStompParams(player, damage, radius)
     if not IsTaintedEdith(player) then return end
 
-    return {StompDamage = damage + 3}
+    return {StompDamage = damage + 3, radius = 30}
 end 
 EdithRestored:AddCallback(EdithRestored.Enums.Callbacks.ON_EDITH_MODIFY_STOMP, Tainted.OverrideStompParams)
