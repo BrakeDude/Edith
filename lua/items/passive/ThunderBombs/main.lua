@@ -1,6 +1,7 @@
 local ThunderBombs = {}
 local Helpers = EdithRestored.Helpers
 local game = EdithRestored.Game
+local sfx = EdithRestored.SFX
 
 ---@param bomb Entity
 ---@return boolean
@@ -127,7 +128,7 @@ function ThunderBombs:EdithStompThunderBomb(player, bombDamage, position, radius
 				end
 			end
 		end
-		SFXManager():Play(SoundEffect.SOUND_BATTERYDISCHARGE, 1 , 0)
+		sfx:Play(SoundEffect.SOUND_BATTERYDISCHARGE, 1 , 0)
 	end
 	player:SetMinDamageCooldown(60)
 	SpawnThunderBombLaser(player, player, position, bombDamage / 2)
@@ -238,7 +239,7 @@ function ThunderBombs:TryPlaceBomb(player)
 					end
 				end
 				if placeBomb then
-					SFXManager():Play(SoundEffect.SOUND_BATTERYDISCHARGE, 1 , 0)
+					sfx:Play(SoundEffect.SOUND_BATTERYDISCHARGE, 1 , 0)
 					local bomb = Isaac.Spawn(EntityType.ENTITY_BOMB, 0, 0, player.Position, Vector.Zero, player)
 					local delay = player:HasCollectible(CollectibleType.COLLECTIBLE_FAST_BOMBS) and 10 or 30
 					player:SetBombPlaceDelay(delay)

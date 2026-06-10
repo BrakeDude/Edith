@@ -1,5 +1,5 @@
 local BlastBoots = {}
-local sfx = SFXManager()
+local sfx = EdithRestored.SFX
 local timerColor = Color(1, 1, 1, 1, 0.5)
 local BlastBootsID = EdithRestored.Enums.CollectibleType.COLLECTIBLE_BLASTING_BOOTS
 local Helpers = EdithRestored.Helpers

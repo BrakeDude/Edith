@@ -1,5 +1,6 @@
 local SoulOfEdith = {}
 local Helpers = EdithRestored.Helpers
+local sfx = EdithRestored.SFX
 
 local function GetRandomDoorPosition(rng)
 	local doorSlots = {}
@@ -199,7 +200,7 @@ function SoulOfEdith:UseSoulEdith(soe, player, useflags)
 		statueData.StoneJumps = (statueData.StoneJumps or 0) + 1
 	else
 		Helpers.PlaySND(EdithRestored.Enums.SFX.Cards.CARD_SOUL_EDITH)
-		SFXManager():Play(SoundEffect.SOUND_STONE_IMPACT)
+		sfx:Play(SoundEffect.SOUND_STONE_IMPACT)
 		statueData.StoneJumps = 4
 		JumpInit(player, data.Statue)
 		player:AddCacheFlags(CacheFlag.CACHE_COLOR, true)
@@ -253,7 +254,7 @@ function SoulOfEdith:Landing(player, jumpData, inPit)
 			statueData.StoneJumps = math.max(statueData.StoneJumps - 1, 0)
 			Helpers.Stomp(player, 1, statueData.StoneJumps == 0, nil, nil, { Tooth = true })
 			if statueData.StoneJumps == 0 then
-				SFXManager():Play(SoundEffect.SOUND_STONE_IMPACT)
+				sfx:Play(SoundEffect.SOUND_STONE_IMPACT)
 				player:AddCollectibleEffect(CollectibleType.COLLECTIBLE_BOOK_OF_SHADOWS, false, 45, true)
 			end
 			for _, pickup in ipairs(Isaac.FindInRadius(player.Position, 30, EntityPartition.PICKUP)) do

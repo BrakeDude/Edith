@@ -7,7 +7,7 @@ local SaltCreepSubtype = EdithRestored.Enums.Entities.SALT_CREEP.SubType
 local SaltQuantity = 16
 local spawnDegree = 360 / SaltQuantity
 
-local sfx = SFXManager()
+local sfx = EdithRestored.SFX
 
 ---@param collectible CollectibleType | integer
 ---@param rng RNG

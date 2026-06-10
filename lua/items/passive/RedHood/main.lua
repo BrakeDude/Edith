@@ -9,6 +9,7 @@ moonPhaseAlpha.A = 0
 
 local game = EdithRestored.Game
 local level = EdithRestored.Level
+local sfx = EdithRestored.SFX
 
 local RedhoodItem = EdithRestored.Enums.CollectibleType.COLLECTIBLE_RED_HOOD
 local RedhoodNull = EdithRestored.Enums.NullItems.RED_HOOD
@@ -60,7 +61,7 @@ end
 ---@param bool boolean
 local function SetRedMoonPhase(bool)
 	if not IsRedMoonPhase() and bool then
-		SFXManager():Play(SoundEffect.SOUND_ISAAC_ROAR, 1, 0, false, 0.7)
+		sfx:Play(SoundEffect.SOUND_ISAAC_ROAR, 1, 0, false, 0.7)
 	end
 	EdithRestored:RunSave()["MoonPhaseWolf"] = bool
 	if EdithRestored.DebugMode and EdithRestored:GetDebugValue("AlwaysShowMoonPhase") then
@@ -334,12 +335,12 @@ function RedHoodLocal:Swipes(effect)
 		end
 		if closest then
 			blackList.HitBlacklist = {}
-			SFXManager():Play(SoundEffect.SOUND_WHIP_HIT, 1, 2, false)
+			sfx:Play(SoundEffect.SOUND_WHIP_HIT, 1, 2, false)
 			local anim = "Swing"
 			anim = sprite:GetAnimation() == "Swing" and anim .. "2" or anim
 			sprite:Play(anim, true)
 			effect.SpriteRotation = (player.Position - closest.Position):GetAngleDegrees() + 90
-			SFXManager():Play(SoundEffect.SOUND_WHIP_HIT, 1, 2, false, 1.2)
+			sfx:Play(SoundEffect.SOUND_WHIP_HIT, 1, 2, false, 1.2)
 		end
 	end
 	local capsule = effect:GetNullCapsule("tip")
@@ -356,7 +357,7 @@ function RedHoodLocal:Swipes(effect)
 			enemy:BloodExplode()
 			enemy:MakeBloodPoof(enemy.Position, nil, 0.5)
 			--SFXManager():Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
-			SFXManager():Play(SoundEffect.SOUND_MEATY_DEATHS)
+			sfx:Play(SoundEffect.SOUND_MEATY_DEATHS)
 			enemy:AddEntityFlags(EntityFlag.FLAG_BLEED_OUT)
 		end
 	end

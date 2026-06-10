@@ -110,10 +110,10 @@ function SaltRock:OnKillSaltRock(grid)
 		local tear = Isaac.Spawn(EntityType.ENTITY_TEAR, 0, 0, grid.Position, RandomVector():Resized(15), nil):ToTear()
 		tear:AddTearFlags(TearFlags.TEAR_SPECTRAL)
         ChangeToEdithTear(tear)
-		tear.CollisionDamage = 4 + EdithRestored.Level():GetAbsoluteStage()
+		tear.CollisionDamage = 4 + EdithRestored.Level:GetAbsoluteStage()
     end
 
-	SFXManager():Play(SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
+	EdithRestored.SFX:Play(SoundEffect.SOUND_MAGGOT_ENTER_GROUND)
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_GRID_ROCK_DESTROY, SaltRock.OnKillSaltRock, GridEntityType.GRID_ROCK)
 

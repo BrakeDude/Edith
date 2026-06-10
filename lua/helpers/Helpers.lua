@@ -1,5 +1,6 @@
 local Helpers = {}
 local game = EdithRestored.Game
+local sfx = EdithRestored.SFX
 
 local stompPoolsList = { Items = {}, Trinkets = {} }
 local turretList = {
@@ -617,7 +618,7 @@ function Helpers.PlaySND(sound, alwaysSfx)
 		or Options.AnnouncerVoiceMode == 0 and TSIL.Random.GetRandomInt(0, 3) == 0
 		or alwaysSfx
 	then
-		SFXManager():Play(sound, 1, 0)
+		sfx:Play(sound, 1, 0)
 	end
 end
 
@@ -1424,7 +1425,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 	game:ShakeScreen(10)
 
 	local sound = chap4 and SoundEffect.SOUND_MEATY_DEATHS or SoundEffect.SOUND_STONE_IMPACT
-	SFXManager():Play(sound, 1, 0)
+	sfx:Play(sound, 1, 0)
 
 	if doParticles and doParticles.Tooth then
 		for i = 1, TSIL.Random.GetRandomInt(6, 9) do
@@ -1445,7 +1446,7 @@ function Helpers.Stomp(player, multiplier, force, doBombStomp, triggerStompCallb
 				player
 			):ToEffect()
 			waterSplash.SpriteScale = waterSplash.SpriteScale * 0.65
-			SFXManager():Play(EdithRestored.Enums.SFX.Edith.WATER_STOMP, 1, 0, false, splashpitch, 0)
+			sfx:Play(EdithRestored.Enums.SFX.Edith.WATER_STOMP, 1, 0, false, splashpitch, 0)
 			-- end
 		else
 			local poof

@@ -90,7 +90,7 @@ function SaltyBaby:OnSaltyBabyUpdate(familiar)
 
             if SaltyBabyShattered(familiar, bffsBuff) then
                 familiar.State = familiar.State * 2
-                SFXManager():Play(SoundEffect.SOUND_GLASS_BREAK)
+                EdithRestored.SFX:Play(SoundEffect.SOUND_GLASS_BREAK)
                 sprite:Play("BrokenDown", true)
             end
         end

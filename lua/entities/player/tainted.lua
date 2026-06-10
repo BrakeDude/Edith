@@ -1,8 +1,8 @@
 ---@diagnostic disable: need-check-nil
 local Helpers = EdithRestored.Helpers
 local game = EdithRestored.Game
+local sfx = EdithRestored.SFX
 local Tainted = {}
-local sfx = SFXManager()
 
 ---@param player EntityPlayer
 ---@return boolean

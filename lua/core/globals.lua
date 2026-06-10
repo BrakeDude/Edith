@@ -1,6 +1,7 @@
 local game = Game()
 EdithRestored.Game = game
 EdithRestored.Level = game:GetLevel()
+EdithRestored.SFX = SFXManager()
 
 EdithRestored.Room = function()
 	return game:GetRoom()

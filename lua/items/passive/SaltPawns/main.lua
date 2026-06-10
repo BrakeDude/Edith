@@ -1,8 +1,7 @@
 local SaltPawns = {}
-local Helpers = EdithRestored.Helpers
 
 local SaltPawnsDesc = Isaac.GetItemConfig():GetCollectible(EdithRestored.Enums.CollectibleType.COLLECTIBLE_SALT_PAWNS)
-local sfx = SFXManager()
+local sfx = EdithRestored.SFX
 
 local Settings = {
 	Cooldown = 3,

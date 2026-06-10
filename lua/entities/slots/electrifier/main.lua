@@ -1,6 +1,7 @@
 local Electrifier = {}
 local Helpers = EdithRestored.Helpers
 local game = EdithRestored.Game
+local sfx = EdithRestored.SFX
 local itemPool = game:GetItemPool()
 local itemConfig = Isaac.GetItemConfig()
 
@@ -55,8 +56,8 @@ function Electrifier:onCollision(slot, collider, low)
                         local BatteryEffect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HEART, 3, player.Position, Vector.Zero, nil):ToEffect()
                         BatteryEffect.SpriteOffset = Vector(0,-15)
                         BatteryEffect.DepthOffset = 15
-                        SFXManager():Play(SoundEffect.SOUND_BEEP, 1, 0)
-                        SFXManager():Play(SoundEffect.SOUND_BATTERYDISCHARGE, 1, 2, false, 1, 0)
+                        sfx:Play(SoundEffect.SOUND_BEEP, 1, 0)
+                        sfx:Play(SoundEffect.SOUND_BATTERYDISCHARGE, 1, 2, false, 1, 0)
                         game:GetHUD():FlashChargeBar(player, i)
                         return
                     end

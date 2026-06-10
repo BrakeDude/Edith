@@ -120,7 +120,7 @@ function Peppermint:AddPeppermintCharge(player)
 			pepperMintBreath:GetSprite():Play("Appear", true)
 			pepperMintBreath.CollisionDamage = player.Damage / 4
 			pepperMintBreath:SetTimeout(600)
-			SFXManager():Play(EdithRestored.Enums.SFX.PEPPERMINT_BREATH, 0.8, 0, false, 1.0)
+			EdithRestored.SFX:Play(EdithRestored.Enums.SFX.PEPPERMINT_BREATH, 0.8, 0, false, 1.0)
 		end
 		data.PeppermintCharge = 0
 		data.LastAimDirection = nil

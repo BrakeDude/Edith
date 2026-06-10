@@ -1,6 +1,5 @@
 local Helpers = EdithRestored.Helpers
-local sfx = SFXManager()
-
+local sfx = EdithRestored.SFX
 local game = EdithRestored.Game
 local level = EdithRestored.Level
 
