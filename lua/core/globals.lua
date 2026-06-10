@@ -2,6 +2,9 @@ local game = Game()
 EdithRestored.Game = game
 EdithRestored.Level = game:GetLevel()
 EdithRestored.SFX = SFXManager()
+EdithRestored.PGD = Isaac.GetPersistentGameData()
+EdithRestored.ItemConfig = Isaac.GetItemConfig()
+EdithRestored.ItemPool = game:GetItemPool()
 
 EdithRestored.Room = function()
 	return game:GetRoom()

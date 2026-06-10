@@ -3,7 +3,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 	local classname = "Restored Mods"
 
 	local function Edith()
-		return Isaac.GetPersistentGameData():Unlocked(EdithRestored.Enums.Achievements.Characters.EDITH) and "Edith"
+		return EdithRestored.PGD:Unlocked(EdithRestored.Enums.Achievements.Characters.EDITH) and "Edith"
 			or "?????"
 	end
 
@@ -20,7 +20,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_SHAKER)
 					then
 						self.Desc = "Unlocked by beating Isaac as " .. Edith()
@@ -58,7 +58,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.GORGON_MASK)
 					then
 						self.Desc = "Unlocked by beating Ultra Greedier as " .. Edith()
@@ -92,7 +92,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.THUNDER_BOMBS)
 					then
 						self.Desc = "Unlocked by beating ??? as " .. Edith()
@@ -119,7 +119,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				ID = EdithRestored.Enums.CollectibleType.COLLECTIBLE_LITHIUM,
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.LITHIUM)
 					then
 						self.Desc = "Unlocked by beating Delirium as " .. Edith()
@@ -169,7 +169,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.BLASTING_BOOTS)
 					then
 						self.Desc = "Unlocked by beating Hush as " .. Edith()
@@ -213,7 +213,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_PAWNS)
 					then
 						self.Desc = "Unlocked by beating Ultra Greed as " .. Edith()
@@ -254,7 +254,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALTY_BABY)
 					then
 						self.Desc = "Unlocked by beating Mom's Heart/It Lives as " .. Edith()
@@ -296,12 +296,12 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SODOM)
 					then
 						local line = "the Beast"
 						if
-							Isaac.GetPersistentGameData():GetBestiaryEncounterCount(EntityType.ENTITY_BEAST, -1) == 0
+							EdithRestored.PGD:GetBestiaryEncounterCount(EntityType.ENTITY_BEAST, -1) == 0
 						then
 							line = "??? ?????"
 						end
@@ -343,7 +343,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.RED_HOOD)
 					then
 						self.Desc = "Unlocked by completing Boss Rush as" .. Edith()
@@ -379,7 +379,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SHRAPNEL_BOMBS)
 					then
 						self.Desc = "Unlocked by beating Mother" .. Edith()
@@ -414,7 +414,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.PEPPERMINT)
 					then
 						self.Desc = "Unlocked by beating Rocket Laces challenge"
@@ -457,7 +457,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				ID = EdithRestored.Enums.TrinketType.TRINKET_SMELLING_SALTS,
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SMELLING_SALTS)
 					then
 						self.Desc = "Unlocked by beating the Lamb as " .. Edith()
@@ -481,7 +481,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				ID = EdithRestored.Enums.TrinketType.TRINKET_SALT_ROCK,
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_ROCK)
 					then
 						self.Desc = "Unlocked by beating ??? ?????"
@@ -504,7 +504,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				ID = EdithRestored.Enums.TrinketType.TRINKET_CHUNK_OF_AMBER,
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.CHUNK_OF_AMBER)
 					then
 						self.Desc = "Unlocked by beating Satan as " .. Edith()
@@ -539,7 +539,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.LITHIUM)
 					then
 						self.Desc = "Unlocked by beating Delirium as " .. Edith()
@@ -567,7 +567,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				},
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData()
+						not EdithRestored.PGD
 							:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SOUL_EDITH)
 					then
 						self.Desc = "Unlocked by getting all completion marks as " .. Edith()
@@ -588,7 +588,7 @@ EdithRestored:AddModCompat("Encyclopedia", function()
 				),
 				UnlockFunc = function(self)
 					if
-						not Isaac.GetPersistentGameData():Unlocked(EdithRestored.Enums.Achievements.Characters.EDITH)
+						not EdithRestored.PGD:Unlocked(EdithRestored.Enums.Achievements.Characters.EDITH)
 					then
 						self.Desc = "Unlocked by beating ??? ?????"
 						return self

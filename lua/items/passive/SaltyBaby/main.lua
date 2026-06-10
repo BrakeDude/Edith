@@ -1,6 +1,6 @@
 local SaltyBaby = {}
 
-local saltyBabyDesc = Isaac.GetItemConfig():GetCollectible(EdithRestored.Enums.CollectibleType.COLLECTIBLE_SALTY_BABY)
+local saltyBabyDesc = EdithRestored.ItemConfig:GetCollectible(EdithRestored.Enums.CollectibleType.COLLECTIBLE_SALTY_BABY)
 
 local function ChangeToEdithTear(tear)
 	tear:ChangeVariant(TearVariant.ROCK)

@@ -1,5 +1,6 @@
 local RocketLases = {}
 local Helpers = EdithRestored.Helpers
+local itemPool = EdithRestored.ItemPool
 
 ---@param bomb EntityBomb
 function RocketLases:InstaBoom(bomb)
@@ -22,13 +23,12 @@ EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, RocketLases.StaticFire
 
 function RocketLases:NoOverrides()
     if Helpers.IsChallenge(EdithRestored.Enums.Challenges.ROCKET_LACES) then
-        local pools = EdithRestored.Game:GetItemPool()
-        pools:RemoveCollectible(CollectibleType.COLLECTIBLE_EPIC_FETUS)
-        pools:RemoveCollectible(CollectibleType.COLLECTIBLE_HAEMOLACRIA)
-        pools:RemoveCollectible(CollectibleType.COLLECTIBLE_MOMS_KNIFE)
-        pools:RemoveCollectible(CollectibleType.COLLECTIBLE_SPIRIT_SWORD)
-        pools:RemoveCollectible(CollectibleType.COLLECTIBLE_ZODIAC)
-        pools:RemoveCollectible(CollectibleType.COLLECTIBLE_LIBRA)
+        itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_EPIC_FETUS)
+        itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_HAEMOLACRIA)
+        itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_MOMS_KNIFE)
+        itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_SPIRIT_SWORD)
+        itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_ZODIAC)
+        itemPool:RemoveCollectible(CollectibleType.COLLECTIBLE_LIBRA)
     end
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, RocketLases.NoOverrides)

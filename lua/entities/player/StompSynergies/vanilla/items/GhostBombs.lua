@@ -1,5 +1,5 @@
 local GhostBombs = {}
-local Helpers = EdithRestored.Helpers
+local sfx = EdithRestored.SFX
 
 ---@param player EntityPlayer
 ---@param bombDamage number
@@ -14,7 +14,7 @@ function GhostBombs:OnStompExplosion(player, bombDamage, position, radius, hasBo
 		Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.HUNGRY_SOUL, 1, player.Position, Vector.Zero, player)
 			:ToEffect()
 	ghost:SetTimeout(300)
-	SFXManager():Play(SoundEffect.SOUND_FLOATY_BABY_ROAR, 1, 0, false, 1.75, 0)
+	sfx:Play(SoundEffect.SOUND_FLOATY_BABY_ROAR, 1, 0, false, 1.75, 0)
 end
 EdithRestored:AddCallback(
 	EdithRestored.Enums.Callbacks.ON_EDITH_STOMP_EXPLOSION,

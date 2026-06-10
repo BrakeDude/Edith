@@ -1,4 +1,5 @@
 local DrFetus = {}
+local game = EdithRestored.Game
 
 ---@param player EntityPlayer
 ---@param stompDamage number
@@ -7,7 +8,7 @@ local DrFetus = {}
 ---@param isStompPool table
 function DrFetus:OnStomp(player, stompDamage, bombLanding, forced, isStompPool)
     if bombLanding then return end
-    Game():BombExplosionEffects(player.Position, player.Damage * 5, player.TearFlags, Color.Default, player, 1, true, false)
+    game:BombExplosionEffects(player.Position, player.Damage * 5, player.TearFlags, Color.Default, player, 1, true, false)
 end
 EdithRestored:AddCallback(
 	EdithRestored.Enums.Callbacks.ON_EDITH_STOMP,

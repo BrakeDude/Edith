@@ -1,4 +1,5 @@
 local SlippysGuts = {}
+local sfx = EdithRestored.SFX
 
 ---@param player EntityPlayer
 ---@param bombDamage number
@@ -17,7 +18,7 @@ function SlippysGuts:OnStompExplosion(player, bombDamage, position, radius, hasB
 		Vector.Zero,
 		player
 	)
-	SFXManager():Play(FiendFolio.Sounds.FartFrog1, 0.2, 0, false, math.random(80, 120) / 100)
+	sfx:Play(FiendFolio.Sounds.FartFrog1, 0.2, 0, false, math.random(80, 120) / 100)
 
 	if isScatterBomb then
 		cloud:GetData().RadiusMult = 0.5

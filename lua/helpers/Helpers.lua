@@ -1,6 +1,8 @@
 local Helpers = {}
 local game = EdithRestored.Game
 local sfx = EdithRestored.SFX
+local itemConfig = EdithRestored.ItemConfig
+local itemPool = EdithRestored.ItemPool
 
 local stompPoolsList = { Items = {}, Trinkets = {} }
 local turretList = {
@@ -450,7 +452,7 @@ end
 function Helpers.GetUnchargedSlot(player, slot)
 	local charge = Helpers.GetCharge(player, slot)
 	local battery = Helpers.BatteryChargeMult(player)
-	local item = Isaac.GetItemConfig():GetCollectible(player:GetActiveItem(slot))
+	local item = itemConfig:GetCollectible(player:GetActiveItem(slot))
 	if player:GetActiveItem(slot) == CollectibleType.COLLECTIBLE_ALABASTER_BOX then
 		if charge < item.MaxCharges then
 			return slot
@@ -521,7 +523,7 @@ end
 ---@param player EntityPlayer
 ---@param sprite string
 function Helpers.ChangeHoodSprite(player, sprite)
-	player:ReplaceCostumeSprite(Isaac.GetItemConfig():GetNullItem(EdithRestored.Enums.Costumes.EDITH_HOOD), sprite, 5)
+	player:ReplaceCostumeSprite(itemConfig:GetNullItem(EdithRestored.Enums.Costumes.EDITH_HOOD), sprite, 5)
 end
 
 ---@param player EntityPlayer
@@ -564,12 +566,12 @@ end
 
 ---@return integer
 function Helpers.GetMaxCollectibleID()
-	return Isaac.GetItemConfig():GetCollectibles().Size - 1
+	return EdithRestored.ItemConfig:GetCollectibles().Size - 1
 end
 
 ---@return integer
 function Helpers.GetMaxTrinketID()
-	return Isaac.GetItemConfig():GetTrinkets().Size - 1
+	return EdithRestored.ItemConfig:GetTrinkets().Size - 1
 end
 
 ---@param firedelay number
@@ -1638,8 +1640,6 @@ end
 function Helpers.AddTrinketToPool(trinketID)
 	local trinketsNotInPool = {}
 	local trinketsSize = Helpers.GetMaxTrinketID()
-	local itemConfig = Isaac.GetItemConfig()
-	local itemPool = game:GetItemPool()
 	for i = 1, trinketsSize do
 		if i ~= trinketID then
 			local trinketConf = itemConfig:GetTrinket(i)

@@ -1,5 +1,5 @@
 local JacobsLadder = {}
-local Helpers = EdithRestored.Helpers
+local game = EdithRestored.Game
 
 ---@param player EntityPlayer
 ---@param stompDamage number
@@ -7,7 +7,7 @@ local Helpers = EdithRestored.Helpers
 ---@param forced boolean
 ---@param isStompPool table
 function JacobsLadder:OnStomp(player, stompDamage, bombLanding, forced, isStompPool)
-	Game():ChainLightning(player.Position, player.Damage, player.TearFlags, player)
+	game:ChainLightning(player.Position, player.Damage, player.TearFlags, player)
 end
 EdithRestored:AddCallback(
 	EdithRestored.Enums.Callbacks.ON_EDITH_STOMP,

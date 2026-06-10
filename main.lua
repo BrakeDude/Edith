@@ -61,8 +61,8 @@ EdithRestored.SaveManager.Init(EdithRestored)
 include("lua.core.saving_system")
 
 --core
-include("lua.core.enums")
 include("lua.core.globals")
+include("lua.core.enums")
 include("lua.helpers.Helpers")
 include("lua.core.achievements")
 include("lua.core.dss.deadseascrolls")

@@ -2,6 +2,7 @@ local Helpers = EdithRestored.Helpers
 local sfx = EdithRestored.SFX
 local game = EdithRestored.Game
 local level = EdithRestored.Level
+local itempool = EdithRestored.ItemPool
 
 local SlideColors = {
 	Water = {
@@ -647,7 +648,7 @@ function Player:LoadUpdate(isLoading)
 		player:AddCacheFlags(CacheFlag.CACHE_DAMAGE | CacheFlag.CACHE_SPEED, true)
 	end
 	if PlayerManager.AnyoneIsPlayerType(EdithRestored.Enums.PlayerType.EDITH) then
-		game:GetItemPool():RemoveCollectible(CollectibleType.COLLECTIBLE_GNAWED_LEAF)
+		itempool:RemoveCollectible(CollectibleType.COLLECTIBLE_GNAWED_LEAF)
 	end
 end
 
@@ -755,10 +756,16 @@ function Player:TargetJumpUpdate(target)
 	if EdithRestored:GetData(player).TargetJumpPos then
 		target.Velocity = Vector.Zero
 	else
-		local marked = player:GetMarkedTarget()
-		if marked then
-			target.Position = marked.Position
-			target.Velocity = marked.Velocity
+		local finalTarget = player:GetMarkedTarget()
+		if finalTarget == nil then
+			local weapon = player:GetWeapon(1)
+			if weapon and weapon:GetModifiers() & WeaponModifier.LUDOVICO_TECHNIQUE > 0 then
+				finalTarget = weapon:GetMainEntity()
+			end
+		end
+		if finalTarget then
+			target.Position = finalTarget.Position
+			target.Velocity = finalTarget.Velocity
 		elseif
 			Input.IsMouseBtnPressed(Mouse.MOUSE_BUTTON_LEFT)
 			and Options.MouseControl
@@ -1364,7 +1371,7 @@ function Player:Home()
 		Helpers.IsPureEdith(Isaac.GetPlayer(0))
 		and level:GetCurrentRoomIndex() == 94
 		and level:GetStage() == LevelStage.STAGE8
-		and not Isaac.GetPersistentGameData():Unlocked(EdithRestored.Enums.Achievements.Characters.TAINTED)
+		and not EdithRestored.PGD:Unlocked(EdithRestored.Enums.Achievements.Characters.TAINTED)
 		and EdithRestored.Room():IsFirstVisit()
 		and #Isaac.FindByType(EntityType.ENTITY_SLOT, SlotVariant.HOME_CLOSET_PLAYER) == 0
 	then
@@ -1800,7 +1807,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Player.AccessToMir
 
 ---@param player EntityPlayer
 function Player:OnInitPlayerWithShaker(player)
-	if not Isaac.GetPersistentGameData():Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_SHAKER) then
+	if not EdithRestored.PGD:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_SHAKER) then
 		player:RemoveCollectible(EdithRestored.Enums.CollectibleType.COLLECTIBLE_SALT_SHAKER)
 	end
 end

@@ -2,14 +2,14 @@
 local Helpers = EdithRestored.Helpers
 local marksA = EdithRestored.Enums.Achievements.Unlocks.ASide
 local marksB = EdithRestored.Enums.Achievements.Unlocks.BSide
-local pgd = Isaac.GetPersistentGameData()
+local pgd = EdithRestored.PGD
 
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_RENDER_CUSTOM_CHARACTER_MENU, function(_, id, pos, sprite)
 	if id == EdithRestored.Enums.PlayerType.EDITH then
 		local sprite = EntityConfig.GetPlayer(id):GetModdedMenuBackgroundSprite()
 		local layerIcon = sprite:GetLayer(7)
 		local layerName = sprite:GetLayer(8)
-		if not Isaac.GetPersistentGameData():Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_SHAKER) then
+		if not pgd:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SALT_SHAKER) then
 			layerIcon:SetSize(Vector.Zero)
 			layerName:SetSize(Vector.Zero)
 		else

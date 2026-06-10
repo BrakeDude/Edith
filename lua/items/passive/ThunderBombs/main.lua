@@ -2,6 +2,7 @@ local ThunderBombs = {}
 local Helpers = EdithRestored.Helpers
 local game = EdithRestored.Game
 local sfx = EdithRestored.SFX
+local itemConfig = EdithRestored.ItemConfig
 
 ---@param bomb Entity
 ---@return boolean
@@ -14,7 +15,7 @@ end
 
 local function DoesItemSlotHaveCharge(player, slot)
 	local item = player:GetActiveItem(slot)
-	local itemConf = Isaac.GetItemConfig():GetCollectible(item)
+	local itemConf = itemConfig:GetCollectible(item)
 	if itemConf and itemConf.ChargeType == 0 then
 		if Helpers.GetCharge(player, slot) > 0 then
 			return true
@@ -202,7 +203,7 @@ function ThunderBombs:AddCharge(collectible, charge, firstTime, slot, VarData, p
 	if firstTime then
 		for i = 0,2 do
 			local item = player:GetActiveItem(i)
-			local itemConf = Isaac.GetItemConfig():GetCollectible(item)
+			local itemConf = itemConfig:GetCollectible(item)
 			if itemConf and itemConf.ChargeType ~= 2 then
 				player:FullCharge(i)
 			end

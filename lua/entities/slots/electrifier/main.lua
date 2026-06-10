@@ -2,8 +2,8 @@ local Electrifier = {}
 local Helpers = EdithRestored.Helpers
 local game = EdithRestored.Game
 local sfx = EdithRestored.SFX
-local itemPool = game:GetItemPool()
-local itemConfig = Isaac.GetItemConfig()
+local itemPool = EdithRestored.ItemPool
+local itemConfig = EdithRestored.ItemConfig
 
 local trinketList = {
     TrinketType.TRINKET_AAA_BATTERY,
@@ -169,8 +169,8 @@ function Electrifier:onUpdate(slot)
         local BatteryEffect = Isaac.Spawn(EntityType.ENTITY_EFFECT, EffectVariant.BATTERY, 0, slot.Position, Vector.Zero, nil):ToEffect()
         BatteryEffect.SpriteOffset = Vector(0,-15)
         BatteryEffect.DepthOffset = 15
-        SFXManager():Play(SoundEffect.SOUND_BEEP, 1, 0)
-        SFXManager():Play(SoundEffect.SOUND_SLOTSPAWN, 1, 0, false)
+        sfx:Play(SoundEffect.SOUND_BEEP, 1, 0)
+        sfx:Play(SoundEffect.SOUND_SLOTSPAWN, 1, 0, false)
         for _ = 1, rng:RandomInt(2,4) do
             Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, slot.Position, EntityPickup.GetRandomPickupVelocity(slot.Position, rng, 1), nil)
         end

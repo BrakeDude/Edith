@@ -2,7 +2,9 @@ local DSSModName = "Dead Sea Scrolls (Edith Restored)"
 
 local DSSCoreVersion = 7
 
-local pgd = Isaac.GetPersistentGameData()
+local pgd = EdithRestored.PGD
+local game = EdithRestored.Game
+local sfx = EdithRestored.SFX
 
 local modMenuName = "Edith Restored"
 -- Those functions were taken from Balance Mod, just to make things easier
@@ -10,8 +12,8 @@ local BREAK_LINE = { str = "", fsize = 1, nosel = true }
 
 local orderedItems = {}
 local orderedTrinkets = {}
-local itemConfig = Isaac.GetItemConfig()
-local itemPool = Game():GetItemPool()
+local itemConfig = EdithRestored.ItemConfig
+local itemPool = EdithRestored.ItemPool
 
 for _, blacklist in ipairs({
 	{
@@ -586,23 +588,23 @@ local function FreezeGame(unfreeze)
 		end
 	else
 		if not OldTimer then
-			OldTimer = Game().TimeCounter
+			OldTimer = game.TimeCounter
 		end
 		if not OldTimerBossRush then
-			OldTimerBossRush = Game().BossRushParTime
+			OldTimerBossRush = game.BossRushParTime
 		end
 		if not OldTimerHush then
-			OldTimerHush = Game().BlueWombParTime
+			OldTimerHush = game.BlueWombParTime
 		end
 
 		Isaac.GetPlayer(0):UseActiveItem(CollectibleType.COLLECTIBLE_PAUSE, UseFlag.USE_NOANIM)
 		if REPENTANCE_PLUS then
-			SFXManager():Stop(SoundEffect.SOUND_PAUSE_FREEZE)
+			sfx:Stop(SoundEffect.SOUND_PAUSE_FREEZE)
 		end
 
-		Game().TimeCounter = OldTimer
-		Game().BossRushParTime = OldTimerBossRush
-		Game().BlueWombParTime = OldTimerHush
+		game.TimeCounter = OldTimer
+		game.BossRushParTime = OldTimerBossRush
+		game.BlueWombParTime = OldTimerHush
 		DeleteParticles()
 	end
 end

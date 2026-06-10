@@ -1,4 +1,5 @@
 local BridgeBombs = {}
+local sfx = EdithRestored.SFX
 
 -- https://www.geeksforgeeks.org/check-if-any-point-overlaps-the-given-circle-and-rectangle/
 local function gridInRadius(grid, pos, radius)
@@ -41,7 +42,7 @@ function BridgeBombs:OnStompExplosion(player, bombDamage, position, radius, hasB
 		end
 
 		if madeBridge then
-			SFXManager():Play(SoundEffect.SOUND_ROCK_CRUMBLE, 1.0, 0, false, 1.0)
+			sfx:Play(SoundEffect.SOUND_ROCK_CRUMBLE, 1.0, 0, false, 1.0)
 		end
 	end
 end

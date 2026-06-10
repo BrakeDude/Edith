@@ -1,5 +1,5 @@
 local Enums = {}
-local pgd = Isaac.GetPersistentGameData()
+local pgd = EdithRestored.PGD
 
 Enums.MouseClick = { LEFT = 0, RIGHT = 1, WHEEL = 2, BACK = 3, FORWARD = 4 }
 

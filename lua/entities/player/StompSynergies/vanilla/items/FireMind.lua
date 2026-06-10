@@ -1,5 +1,6 @@
 local FireMind = {}
 local Helpers = EdithRestored.Helpers
+local game = EdithRestored.Game
 
 ---@param player EntityPlayer
 ---@param stompDamage number
@@ -13,7 +14,7 @@ function FireMind:OnStomp(player, stompDamage, bombLanding, forced, isStompPool)
 		enemy:AddBurn(EntityRef(player), 40, player.Damage)
 	end
 	if rng:RandomFloat() <= chance or isStompPool.Pool3DollarBill or isStompPool.PoolFruitCake or isStompPool.PoolPlaydoughCookie then
-		Game():BombExplosionEffects(player.Position, player.Damage, TearFlags.TEAR_BURN, Color.Default, player)
+		game:BombExplosionEffects(player.Position, player.Damage, TearFlags.TEAR_BURN, Color.Default, player)
 	end
 end
 EdithRestored:AddCallback(

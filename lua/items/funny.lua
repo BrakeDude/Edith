@@ -1,7 +1,8 @@
 local function InitSounds()
     if USoEI then
+        local itemConfig = EdithRestored.ItemConfig
         for _,collectible in pairs(EdithRestored.Enums.CollectibleType) do
-            local collectibleConf = Isaac.GetItemConfig():GetCollectible(collectible)
+            local collectibleConf = itemConfig:GetCollectible(collectible)
             if collectibleConf then
                 local sound = Isaac.GetSoundIdByName(collectibleConf.Name)
                 if sound > 0 then

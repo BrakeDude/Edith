@@ -1,4 +1,5 @@
 local Telebombs = {}
+local sfx = EdithRestored.SFX
 
 ---@param player EntityPlayer
 ---@param bombDamage number
@@ -15,7 +16,7 @@ function Telebombs:OnStompExplosion(player, bombDamage, position, radius, hasBom
 			if data.telebombMarker and data.telebombMarker:GetData().isActive then
 				player.Position = data.telebombMarker.Position
 				player:SetColor(Color(1,1,1,1,1,1,1),3,1,true,false)
-				SFXManager():Play(SoundEffect.SOUND_HELL_PORTAL1,1,0,false,1)
+				sfx:Play(SoundEffect.SOUND_HELL_PORTAL1,1,0,false,1)
 				data.telebombMarker:Remove()
 				data.telebombMarker = nil
 
