@@ -1,4 +1,4 @@
 [submodule "lua/extraLibs/loi"]
 	path = lua/extraLibs/loi
-	url = https://github.com/BrakeDude/libraryofisaac.git
+	url = https://github.com/thicco-catto/library-of-isaac
 	branch = repentogon
