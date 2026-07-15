@@ -1596,12 +1596,12 @@ end
 
 ---@param value number
 ---@param min number
----@param max number
+---@param max number?
 ---@return number
 function Helpers.Clamp(value, min, max)
 	if value < min then
 		return min
-	elseif value > max then
+	elseif max ~= nil and value > max then
 		return max
 	else
 		return value

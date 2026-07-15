@@ -953,6 +953,9 @@ local function EdithLandManager(player, data)
 	if IFrames > 0 then
 		player:ResetDamageCooldown()
 		player:SetMinDamageCooldown(IFrames)
+		data.CollisionCooldown = IFrames
+	else
+		data.CollisionCooldown = 30
 	end
 	data.Landed = nil
 	data.PostLandingKill = nil
@@ -1074,6 +1077,7 @@ function Player:OnUpdatePlayer(player)
 	end
 
 	data.EdithJumpCharge = data.EdithJumpCharge or 0
+	data.CollisionCooldown = data.CollisionCooldown and Helpers.Clamp(data.CollisionCooldown - 1, 0) or 0
 
 	if ShouldChargeEdithJump(sprite, isJumping) then
 		EdithJumpChargeManager(player, data)
@@ -1287,7 +1291,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_BOMB_UPDATE, Player.RocketTarget)
 ---@return boolean?
 function Player:DamageHandling(entity, amount, flags, source, cd)
 	if entity and entity:ToPlayer() and Helpers.IsPlayerEdith(entity:ToPlayer(), true, true) then
-		local player = entity:ToPlayer()
+		local player = entity:ToPlayer() ---@cast player EntityPlayer
 		local data = EdithRestored:GetData(player)
 		if flags & DamageFlag.DAMAGE_PITFALL > 0 then
 			data.EdithTargetMovementPosition = nil
@@ -1298,6 +1302,7 @@ function Player:DamageHandling(entity, amount, flags, source, cd)
 		data.PostLandingKill = nil
 		data.Landed = nil
 		player.Velocity = Vector.Zero
+		data.CollisionCooldown = flags & DamageFlag.DAMAGE_COUNTDOWN > 0 and cd or player:GetDamageCooldown()
 	end
 end
 
@@ -1479,6 +1484,9 @@ function Player:OnNPCCollision(entity, collider)
 	end
 
 	if entity.Type == EntityType.ENTITY_FIREPLACE and data.SlideCounter < (5 / player.MoveSpeed) then
+		return
+	end
+	if data.CollisionCooldown and data.CollisionCooldown > 0 then
 		return
 	end
 	player.Velocity = Vector.Zero
