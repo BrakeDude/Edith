@@ -3,7 +3,7 @@
 
 local game = Game()
 local SaveManager = {}
-SaveManager.VERSION = "2.4"
+SaveManager.VERSION = "2.4.1"
 SaveManager.Utility = {}
 
 SaveManager.Debug = false
@@ -170,6 +170,7 @@ SaveManager.Utility.ValidityState = {
 ---@field unlockApi table @Built in compatibility for UnlockAPI (https://github.com/dsju/unlockapi)
 ---@field deadSeaScrolls table @Built in support for Dead Sea Scrolls (https://github.com/Meowlala/DeadSeaScrollsMenu)
 ---@field minimapAPI table @Built in support for MinimapAPI(https://github.com/TazTxUK/MinimapAPI)
+---@field customHealthAPI string @Built in support for CustomHealthAPI(https://github.com/TaigaTreant/isaac-chapi)
 ---@field settings table @Miscellaneous table for anything settings-related.
 ---@field other table @Miscellaneous table for if you want to use your own unlock system or just need to store random data to the file.
 
@@ -196,6 +197,7 @@ SaveManager.DEFAULT_SAVE = {
 		unlockApi = {},
 		deadSeaScrolls = {},
 		minimapAPI = {},
+		customHealthAPI = "",
 		settings = {},
 		other = {}
 	}
@@ -666,7 +668,7 @@ end
 ---@param saveType DataDuration
 ---@return boolean, string?
 function SaveManager.Utility.IsEntitySaveAllowed(ent, saveType)
-	if not SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType, game:GetRoom():IsClear()) then
+	if not SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType, game:GetFrameCount() == 0 or game:GetRoom():IsClear()) then
 		return false, SaveManager.Utility.ErrorMessages.INVALID_ENTITY:format(ent.Type, ent.Variant, ent.SubType)
 	end
 	local entType = ent.Type
@@ -1919,7 +1921,7 @@ end
 
 --#endregion
 
---#region MinimapAI integration
+--#region MinimapAPI integration
 
 -- Registers MinimapAPI as a dependent of SaveManager.
 ---@param minimapAPI table @Reference to MinimapAPI.
@@ -1943,6 +1945,20 @@ function SaveManager.InitMinimapAPI(minimapAPI, branchVersion)
 			end
 		end)
 	end
+end
+
+---@param customHealthAPI table @Reference to CustomHealthAPI.
+function SaveManager.InitCHAPI(customHealthAPI)
+	customHealthAPI.Library.AddCallback(modReference.Name, customHealthAPI.Enums.Callbacks.ON_SAVE, 0, function(savedata, isPreGameExit)
+		dataCache.file.customHealthAPI = savedata
+		SaveManager.Save()
+	end)
+
+	customHealthAPI.Library.AddCallback(modReference.Name, customHealthAPI.Enums.Callbacks.ON_LOAD, 0, function()
+		if modReference:HasData() then
+			return dataCache.file.customHealthAPI
+		end
+	end)
 end
 
 --#endregion
