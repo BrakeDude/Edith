@@ -503,6 +503,29 @@ local edithdirectory = {
 				nosel = true,
 			},
 			{
+				strset = { "screen shake", "on slide" },
+				choices = { "enable", "disable" },
+				setting = 1,
+				variable = "AllowSlideScreenShake",
+
+				load = function()
+					return EdithRestored:GetDefaultFileSave("AllowSlideScreenShake") and 1 or 2
+				end,
+
+				store = function(newOption)
+					EdithRestored:AddDefaultFileSave("AllowSlideScreenShake", newOption == 1)
+					EdithRestored.SaveManager.Save()
+				end,
+
+				tooltip = GenerateTooltip("enable or disable screen shake when sliding"),
+			},
+
+			{
+				str = "",
+				fsize = 2,
+				nosel = true,
+			},
+			{
 				str = "target color",
 				dest = "targetcolor",
 				tooltip = GenerateTooltip("edith target color customization"),
@@ -647,7 +670,7 @@ include("lua.core.dss.changelog")
 local function RemoveTogglesItems(t)
 	local orderedTable = t == "Trinkets" and orderedTrinkets or orderedItems
 	for _, itemConf in pairs(orderedTable) do
-		local elemName = "edithRestoredToggles"..t..string.gsub(itemConf.Name, " ", "")
+		local elemName = "edithRestoredToggles" .. t .. string.gsub(itemConf.Name, " ", "")
 		if ImGui.ElementExists(elemName) then
 			ImGui.RemoveCallback(elemName, ImGuiCallback.Render)
 			ImGui.RemoveElement(elemName)
@@ -658,53 +681,47 @@ end
 local function ReOrederItems(t)
 	local i = 0
 
-    local orderedTable = orderedItems
-    local lookupTable = EdithRestored.Enums.CollectibleType
-    local enumFunc = GetItemsEnum
-    local toggles = "DisabledItems"
+	local orderedTable = orderedItems
+	local lookupTable = EdithRestored.Enums.CollectibleType
+	local enumFunc = GetItemsEnum
+	local toggles = "DisabledItems"
 
-    if t == "Trinkets" then
-        orderedTable = orderedTrinkets
-        lookupTable = EdithRestored.Enums.TrinketType
-        enumFunc = GetTrinketsEnum
-        toggles = "DisabledTrinkets"
-    end
+	if t == "Trinkets" then
+		orderedTable = orderedTrinkets
+		lookupTable = EdithRestored.Enums.TrinketType
+		enumFunc = GetTrinketsEnum
+		toggles = "DisabledTrinkets"
+	end
 
 	RemoveTogglesItems(t)
 	for _, itemConf in pairs(orderedTable) do
-		local elemName = "edithRestoredToggles"..t..string.gsub(itemConf.Name, " ", "")
+		local elemName = "edithRestoredToggles" .. t .. string.gsub(itemConf.Name, " ", "")
 		if itemConf.AchievementID == -1 or pgd:Unlocked(itemConf.AchievementID) then
 			i = i + 1
-			ImGui.AddCheckbox(
-				"edithWindowToggles"..t,
-				elemName,
-				RemoveZeroWidthSpace(itemConf.Name),
-				function(val)
-					local disabledItems = EdithRestored:GetDefaultFileSave(toggles)
-					for indexItem, disabledItem in pairs(disabledItems) do
-						if lookupTable[indexItem] == itemConf.ID then
-							if val then
-								disabledItems[indexItem] = nil
-								itemConf.Hidden = false
-								if itemConf:IsTrinket() then
-									EdithRestored.Helpers:AddTrinketToPool(itemConf.ID)
-								end
+			ImGui.AddCheckbox("edithWindowToggles" .. t, elemName, RemoveZeroWidthSpace(itemConf.Name), function(val)
+				local disabledItems = EdithRestored:GetDefaultFileSave(toggles)
+				for indexItem, disabledItem in pairs(disabledItems) do
+					if lookupTable[indexItem] == itemConf.ID then
+						if val then
+							disabledItems[indexItem] = nil
+							itemConf.Hidden = false
+							if itemConf:IsTrinket() then
+								EdithRestored.Helpers:AddTrinketToPool(itemConf.ID)
 							end
-							break
 						end
+						break
 					end
+				end
 
-					if not val then
-                        disabledItems[enumFunc(itemConf.ID)] = true
-						itemConf.Hidden = true
-						if itemConf:IsTrinket() then
-							itemPool:RemoveTrinket(itemConf.ID)
-						end
+				if not val then
+					disabledItems[enumFunc(itemConf.ID)] = true
+					itemConf.Hidden = true
+					if itemConf:IsTrinket() then
+						itemPool:RemoveTrinket(itemConf.ID)
 					end
-					EdithRestored.SaveManager.Save()
-				end,
-				true
-			)
+				end
+				EdithRestored.SaveManager.Save()
+			end, true)
 
 			ImGui.AddCallback(elemName, ImGuiCallback.Render, function()
 				local val = true
@@ -718,46 +735,51 @@ local function ReOrederItems(t)
 			end)
 		end
 	end
-	ImGui.SetWindowSize("edithWindowToggles"..t, 600, 10 + i * 90 + (1 - i) * 44)
+	ImGui.SetWindowSize("edithWindowToggles" .. t, 600, 10 + i * 90 + (1 - i) * 44)
 end
 
 local function UpdateTogglesMenu(show)
-    for _, t in ipairs({"Items", "Trinkets"}) do
-        if not ShowTogglesButton(t) then
-            if ImGui.ElementExists("edithWindowToggles"..t) then
-                ImGui.RemoveWindow("edithWindowToggles"..t)
-            end
-            if ImGui.ElementExists("edithMenuToggles"..t) then
-                ImGui.RemoveElement("edithMenuToggles"..t)
-            end
-            goto continue
-        end
-        if not ImGui.ElementExists("edithMenuToggles"..t) then
-            ImGui.AddElement("EdithRestored", "edithMenuToggles"..t, ImGuiElement.MenuItem, "\u{f05e} "..t.." Toggles")
-        end
+	for _, t in ipairs({ "Items", "Trinkets" }) do
+		if not ShowTogglesButton(t) then
+			if ImGui.ElementExists("edithWindowToggles" .. t) then
+				ImGui.RemoveWindow("edithWindowToggles" .. t)
+			end
+			if ImGui.ElementExists("edithMenuToggles" .. t) then
+				ImGui.RemoveElement("edithMenuToggles" .. t)
+			end
+			goto continue
+		end
+		if not ImGui.ElementExists("edithMenuToggles" .. t) then
+			ImGui.AddElement(
+				"EdithRestored",
+				"edithMenuToggles" .. t,
+				ImGuiElement.MenuItem,
+				"\u{f05e} " .. t .. " Toggles"
+			)
+		end
 
-        if not ImGui.ElementExists("edithWindowToggles"..t) then
-            ImGui.CreateWindow("edithWindowToggles"..t, t.." Toggles")
-            ImGui.LinkWindowToElement("edithWindowToggles"..t, "edithMenuToggles"..t)
-        end
-        if show then
-            if ImGui.ElementExists("edithMenuToggles"..t.."NoWay") then
-                ImGui.RemoveElement("edithMenuToggles"..t.."NoWay")
-            end
-            ReOrederItems(t)
-        else
-            RemoveTogglesItems(t)
-            if not ImGui.ElementExists("edithMenuToggles"..t.."NoWay") then
-                ImGui.AddText(
-                    "edithWindowToggles"..t,
-                    "Options will be available after loading the game.",
-                    true,
-                    "edithMenuToggles"..t.."NoWay"
-                )
-            end
-        end
-        ::continue::
-    end
+		if not ImGui.ElementExists("edithWindowToggles" .. t) then
+			ImGui.CreateWindow("edithWindowToggles" .. t, t .. " Toggles")
+			ImGui.LinkWindowToElement("edithWindowToggles" .. t, "edithMenuToggles" .. t)
+		end
+		if show then
+			if ImGui.ElementExists("edithMenuToggles" .. t .. "NoWay") then
+				ImGui.RemoveElement("edithMenuToggles" .. t .. "NoWay")
+			end
+			ReOrederItems(t)
+		else
+			RemoveTogglesItems(t)
+			if not ImGui.ElementExists("edithMenuToggles" .. t .. "NoWay") then
+				ImGui.AddText(
+					"edithWindowToggles" .. t,
+					"Options will be available after loading the game.",
+					true,
+					"edithMenuToggles" .. t .. "NoWay"
+				)
+			end
+		end
+		::continue::
+	end
 end
 
 local function UpdateSettingsMenu(show)
@@ -788,21 +810,35 @@ local function UpdateSettingsMenu(show)
 				EdithRestored.SaveManager.Save()
 			end, true)
 		end
+		if not ImGui.ElementExists("edithAllowSlideScreenShake") then
+			ImGui.AddCheckbox("edithWindowSettings", "edithAllowSlideScreenShake", "Screen shake on sliding", function(val)
+				EdithRestored:AddDefaultFileSave("AllowSlideScreenShake", val)
+				EdithRestored.SaveManager.Save()
+			end, true)
+		end
 
 		if not ImGui.ElementExists("edithTargetColorRGB") then
-			
-			ImGui.AddInputColor("edithWindowSettings", "edithTargetColorRGB", "\u{f1fc} Edith's Target Color", function(r, g, b)
-				local targetColor = EdithRestored:GetDefaultFileSave("TargetColor")
-				targetColor.R = math.floor(r * 255)
-				targetColor.G = math.floor(g * 255)
-				targetColor.B = math.floor(b * 255)
-				EdithRestored.SaveManager.Save()
-			end, 155 / 255, 0, 0)
+			ImGui.AddInputColor(
+				"edithWindowSettings",
+				"edithTargetColorRGB",
+				"\u{f1fc} Edith's Target Color",
+				function(r, g, b)
+					local targetColor = EdithRestored:GetDefaultFileSave("TargetColor")
+					targetColor.R = math.floor(r * 255)
+					targetColor.G = math.floor(g * 255)
+					targetColor.B = math.floor(b * 255)
+					EdithRestored.SaveManager.Save()
+				end,
+				155 / 255,
+				0,
+				0
+			)
 		end
 
 		ImGui.AddCallback("edithWindowSettings", ImGuiCallback.Render, function()
 			ImGui.UpdateData("edithPushToSlide", ImGuiData.Value, EdithRestored:GetDefaultFileSave("AllowHolding"))
 			ImGui.UpdateData("edithAllowBombs", ImGuiData.Value, EdithRestored:GetDefaultFileSave("OnlyStomps"))
+			ImGui.UpdateData("edithAllowSlideScreenShake", ImGuiData.Value, EdithRestored:GetDefaultFileSave("AllowSlideScreenShake"))
 			local rgb = EdithRestored:GetDefaultFileSave("TargetColor")
 			ImGui.UpdateData("edithTargetColorRGB", ImGuiData.ColorValues, { rgb.R / 255, rgb.G / 255, rgb.B / 255 })
 		end)
@@ -819,6 +855,10 @@ local function UpdateSettingsMenu(show)
 
 		if ImGui.ElementExists("edithAllowBombs") then
 			ImGui.RemoveElement("edithAllowBombs")
+		end
+
+		if ImGui.ElementExists("edithAllowSlideScreenShake") then
+			ImGui.RemoveElement("edithAllowSlideScreenShake")
 		end
 
 		if ImGui.ElementExists("edithTargetColorRGB") then
@@ -1392,10 +1432,12 @@ local function InitImGuiMenu()
 		)
 	end)]]
 
-	for tab, prefix in pairs({ ["edithUnlocksA"] = "edithMarksA", --[["edithUnlocksB"] = "edithMarksB"]] }) do
-		local pType = EdithRestored.Enums.PlayerType.EDITH--prefix == "edithMarksA" and EdithRestored.Enums.PlayerType.EDITH
-			--or EdithRestored.Enums.PlayerType.EDITH_B
-		local achievements = marksA--prefix == "edithMarksA" and marksA or marksB
+	for tab, prefix in pairs({
+		["edithUnlocksA"] = "edithMarksA", --[["edithUnlocksB"] = "edithMarksB"]]
+	}) do
+		local pType = EdithRestored.Enums.PlayerType.EDITH --prefix == "edithMarksA" and EdithRestored.Enums.PlayerType.EDITH
+		--or EdithRestored.Enums.PlayerType.EDITH_B
+		local achievements = marksA --prefix == "edithMarksA" and marksA or marksB
 		for ach, data in pairs(achievements) do
 			if data.Name ~= nil and data.Difficulty ~= nil and ach > 0 then
 				if ImGui.ElementExists(prefix .. data.Name) then
@@ -1424,7 +1466,12 @@ local function InitImGuiMenu()
 				end)
 
 				if data.Type == "Item" then
-					SetHelpMarker(EdithRestored.Enums.CollectibleType, itemConfig.GetCollectible, ach, prefix .. data.Name)
+					SetHelpMarker(
+						EdithRestored.Enums.CollectibleType,
+						itemConfig.GetCollectible,
+						ach,
+						prefix .. data.Name
+					)
 				elseif data.Type == "Trinket" then
 					SetHelpMarker(EdithRestored.Enums.TrinketType, itemConfig.GetTrinket, ach, prefix .. data.Name)
 				elseif data.Type == "Card" then
@@ -1495,7 +1542,12 @@ local function InitImGuiMenu()
 		end)
 
 		if val.Type == "Item" then
-			SetHelpMarker(EdithRestored.Enums.CollectibleType, itemConfig.GetCollectible, key, "edithChallenge" .. val.Name)
+			SetHelpMarker(
+				EdithRestored.Enums.CollectibleType,
+				itemConfig.GetCollectible,
+				key,
+				"edithChallenge" .. val.Name
+			)
 		elseif val.Type == "Trinket" then
 			SetHelpMarker(EdithRestored.Enums.TrinketType, itemConfig.GetTrinket, key, "edithChallenge" .. val.Name)
 		elseif val.Type == "Card" then

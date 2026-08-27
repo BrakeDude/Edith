@@ -197,7 +197,6 @@ local function CheckEdithsCollisionWithGrid(player, data)
 						if hasMarsEffect then
 							local marsEffect = effects:GetCollectibleEffect(CollectibleType.COLLECTIBLE_MARS)
 							local marsCooldown = marsEffect.Cooldown
-
 							game:ShakeScreen(marsCooldown + 10)
 						end
 					--end
@@ -342,7 +341,9 @@ local function EdithSlideEffects(player, directionStuff)
 	end
 
 	sfx:Play(slideSound, slideVolume)
-	game:ShakeScreen(1)
+	if EdithRestored:GetDefaultFileSave("edithAllowSlideScreenShake") then
+		game:ShakeScreen(1)
+	end
 
 	-- local rockParticleVelocity = Vector(0, 0)
 
