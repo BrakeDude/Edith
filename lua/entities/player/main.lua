@@ -341,7 +341,7 @@ local function EdithSlideEffects(player, directionStuff)
 	end
 
 	sfx:Play(slideSound, slideVolume)
-	if EdithRestored:GetDefaultFileSave("edithAllowSlideScreenShake") then
+	if EdithRestored:GetDefaultFileSave("AllowSlideScreenShake") then
 		game:ShakeScreen(1)
 	end
 
