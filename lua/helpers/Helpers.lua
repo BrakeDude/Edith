@@ -244,7 +244,7 @@ end
 ---@param a number | Vector
 ---@param b number | Vector
 ---@param t number
----@param speed number
+---@param speed number?
 ---@return number | Vector
 function Helpers.Lerp(a, b, t, speed)
 	speed = speed or 1

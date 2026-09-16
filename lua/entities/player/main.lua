@@ -75,6 +75,10 @@ local function IsPlayerOnGravityGrid(player, position)
 	return not player.CanFly and grid and grid:GetType() == GridEntityType.GRID_GRAVITY
 end
 
+local function IsInCrawlSpaceGravityGrid(player)
+	return EdithRestored.Room():GetType() == RoomType.ROOM_DUNGEON and not player.CanFly and IsPlayerOnGravityGrid(player, player.Position + Vector(0, 10))
+end
+
 ---@param player EntityPlayer
 ---@param pos Vector
 ---@param force boolean?
@@ -442,9 +446,22 @@ local function EdithTriggerSlide(player, data, gridMult, forcedDir, forcedVec)
 
 		local ButtomParams = params[forcedDir]
 
+		local direction = Vector(0,0)
+		if player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) then
+			direction = forcedDir
+		else
+			if forcedDir.X ~= 0 then
+				direction = Vector(forcedDir.X, 0)
+			elseif forcedDir.Y ~= 0 then
+				direction = Vector(0, forcedDir.Y)
+			end
+		end
+
 		data.MovementDirection = forcedDir
-		targetMovementPosition = clampedPlayerPos + ButtomParams.GridMove
-		targetMovementDirection = ButtomParams.Direction
+		--targetMovementPosition = clampedPlayerPos + ButtomParams.GridMove
+		--targetMovementDirection = ButtomParams.Direction
+		targetMovementPosition = clampedPlayerPos + Vector(direction.X * mirrorWorldReverser, direction.Y) * gridMove
+		targetMovementDirection = direction
 	else
 		if isPressingLeft then
 			targetMovementPosition = clampedPlayerPos + Vector(-gridMove, 0) * mirrorWorldReverser
@@ -452,12 +469,17 @@ local function EdithTriggerSlide(player, data, gridMult, forcedDir, forcedVec)
 		elseif isPressingRight then
 			targetMovementPosition = clampedPlayerPos + Vector(gridMove, 0) * mirrorWorldReverser
 			targetMovementDirection = Vector(1, 0)
-		elseif isPressingDown then
-			targetMovementPosition = clampedPlayerPos + Vector(0, gridMove)
-			targetMovementDirection = Vector(0, 1)
-		elseif isPressingUp then
-			targetMovementPosition = clampedPlayerPos + Vector(0, -gridMove)
-			targetMovementDirection = Vector(0, -1)
+		end
+		if player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT) or targetMovementPosition == nil then
+			local tempTargetPos = targetMovementPosition or clampedPlayerPos
+			local tempTargetDir = targetMovementDirection or Vector.Zero
+			if isPressingDown then
+				targetMovementPosition = tempTargetPos + Vector(0, gridMove)
+				targetMovementDirection = tempTargetDir + Vector(0, 1)
+			elseif isPressingUp then
+				targetMovementPosition = tempTargetPos + Vector(0, -gridMove)
+				targetMovementDirection = tempTargetDir + Vector(0, -1)
+			end
 		end
 	end
 
@@ -486,7 +508,7 @@ local function EdithSliding(player, data, hasMarsEffect, hasMegaMush, speedBase,
 		data.EdithTargetMovementPosition = nil
 	end
 
-	if not Helpers.CanMove(player) or hasMegaMush then
+	if not Helpers.CanMove(player) or hasMegaMush or data.SlideCounter >= 150 then
 		data.EdithTargetMovementPosition = nil
 		player.Velocity = Vector.Zero
 		return
@@ -507,7 +529,6 @@ local function EdithSliding(player, data, hasMarsEffect, hasMegaMush, speedBase,
 	elseif data.EdithTargetMovementPosition then
 		if IsPlayerOnGravityGrid(player, data.EdithTargetMovementPosition) then
 			data.EdithTargetMovementPosition.Y = player.Position.Y
-			player.Velocity.Y = Helpers.Lerp(player.Velocity.Y, 1, 0.1)
 		end
 		local velocityDirection = (data.EdithTargetMovementPosition - player.Position):Normalized()
 		local distanceToTarget = player.Position:DistanceSquared(data.EdithTargetMovementPosition)
@@ -562,7 +583,7 @@ local function EdithSliding(player, data, hasMarsEffect, hasMegaMush, speedBase,
 				data.InputBuffer.frame = data.InputBuffer.frame - 1
 			end
 
-			if data.InputBuffer == 0 then
+			if data.InputBuffer.frame == 0 then
 				data.InputBuffer = nil
 			end
 		end
@@ -628,9 +649,10 @@ function EdithRestored:EdithGridMovement(player, data, speedBase, gridMult, forc
 	end	
 
 	firstFrameOfMovement = data.SlideCounter == 1
-
 	if (not MovementPos and Helpers.CanMove(player) and not hasMegaMush) then
-		EdithTriggerSlide(player, data, gridMult, forcedDir, forcedVec)
+		if not IsInCrawlSpaceGravityGrid(player) then
+			EdithTriggerSlide(player, data, gridMult, forcedDir, forcedVec)
+		end
 	end
 
 	if MovementPos then
@@ -1426,8 +1448,9 @@ end
 
 EdithRestored:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Player.NewRoom)
 
+---@param pickup EntityPickup
 ---@param collider Entity
-function Player:OnCollectibleCollission(_, collider)
+function Player:OnCollectibleCollission(pickup, collider)
 	local player = collider:ToPlayer() 
 
 	if not player then return end
@@ -1435,6 +1458,10 @@ function Player:OnCollectibleCollission(_, collider)
 
 	local data = EdithRestored:GetData(player)
 	if not data.EdithTargetMovementPosition then return end
+
+	if pickup.SubType == 0 and EdithRestored.Room():GetType() == RoomType.ROOM_DUNGEON then
+		return true
+	end
 
 	player.Velocity = Vector.Zero
 	data.EdithTargetMovementPosition = nil
