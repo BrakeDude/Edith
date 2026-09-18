@@ -3,7 +3,7 @@
 
 local game = Game()
 local SaveManager = {}
-SaveManager.VERSION = "2.4.1"
+SaveManager.VERSION = "2.4.2"
 SaveManager.Utility = {}
 
 SaveManager.Debug = false
@@ -71,8 +71,8 @@ SaveManager.Utility.ErrorMessages = {
 	COPY_ERROR =
 	"An error was made when copying from cached data to what would be saved! This could be due to a circular reference.",
 	INVALID_ENTITY = "Error using entity \"%s.%s.%s\": The save manager cannot support non-persistent entities!",
-	INVALID_ENTITY_WITH_SAVE = "An error was made using entity \"%s.%s.%s\": This entity does not support this save data as it does not persist between floors or move between rooms.",
-	INVALID_DEFAULT_WITH_SAVE = "An error was made using entity type \"%s\": This entity does not support this save data as it does not persist between floors or move between rooms."
+	INVALID_ENTITY_WITH_SAVE = "An error was made using entity \"%s.%s.%s\": This entity is not compatible with the current save type. Please use room or temp saves instead.",
+	INVALID_DEFAULT_WITH_SAVE = "An error was made using entity type \"%s\": This entity is not compatible with the current save type. Please use room or temp saves instead."
 }
 SaveManager.Utility.JsonIncompatibilityType = {
 	SPARSE_ARRAY = "Sparse arrays, or arrays with gaps between indexes, will fill gaps with null when encoded. Convert them into strings to avoid this.",
@@ -242,7 +242,7 @@ local ANIMAL_EFFECTS = {
 ---@param variant integer
 ---@param subtype integer
 ---@param spawnerType EntityType | integer
----@param isClear boolean
+---@param isClear? boolean
 ---@return boolean
 local function should_save_effect(variant, subtype, spawnerType, isClear)
 	if EFFECT_WHITELIST[variant] then
@@ -274,7 +274,7 @@ end
 ---@param variant integer
 ---@param subtype integer
 ---@param spawnerType EntityType | integer
----@param isClear boolean
+---@param isClear? boolean
 ---@return boolean
 local function should_save_type(type, variant, subtype, spawnerType, isClear)
 	if type == EntityType.ENTITY_SHOPKEEPER then
@@ -298,7 +298,7 @@ local function should_save_type(type, variant, subtype, spawnerType, isClear)
 	end
 
 	if type == EntityType.ENTITY_GIDEON then
-		return isClear and subtype == 1
+		return isClear and subtype == 1 or false
 	end
 
 	if type == EntityType.ENTITY_GENERIC_PROP then
@@ -312,7 +312,7 @@ end
 ---@param variant integer
 ---@param subtype integer
 ---@param spawnerType EntityType | integer
----@param isClear boolean
+---@param isClear? boolean
 function SaveManager.Utility.ShouldSaveType(entType, variant, subtype, spawnerType, isClear)
 	if entType == EntityType.ENTITY_PICKUP then
 		return not PICKUP_BLACKLIST[variant]
@@ -668,7 +668,7 @@ end
 ---@param saveType DataDuration
 ---@return boolean, string?
 function SaveManager.Utility.IsEntitySaveAllowed(ent, saveType)
-	if not SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType, game:GetFrameCount() == 0 or game:GetRoom():IsClear()) then
+	if not SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType) then
 		return false, SaveManager.Utility.ErrorMessages.INVALID_ENTITY:format(ent.Type, ent.Variant, ent.SubType)
 	end
 	local entType = ent.Type
@@ -1487,9 +1487,8 @@ end
 local function tryRemoveLeftoverData()
 	SaveManager.Utility.DebugLog("leftover ent data check")
 	local availableIndexes = {}
-	local clearedRoom = game:GetRoom():IsClear()
 	for _, ent in ipairs(Isaac.GetRoomEntities()) do
-		if SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType, clearedRoom) then
+		if SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType) then
 			availableIndexes[SaveManager.Utility.GetSaveIndex(ent)] = true
 		end
 	end
@@ -1614,7 +1613,7 @@ end
 ---@param ent Entity
 local function postEntityRemove(_, ent)
 	if not dataCache.game
-		or not SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType, game:GetRoom():IsClear())
+		or not SaveManager.Utility.ShouldSaveType(ent.Type, ent.Variant, ent.SubType, ent.SpawnerType)
 	then
 		return
 	end
@@ -1697,7 +1696,6 @@ local function postNewLevel()
 	resetData("floor")
 	checkForMyosotis()
 	checkForAscentValidRooms()
-	SaveManager.Save()
 end
 
 local function postUpdate()
@@ -1849,6 +1847,10 @@ function SaveManager.Init(mod)
 		postNewRoom)
 	modReference:AddPriorityCallback(ModCallbacks.MC_POST_NEW_LEVEL, SaveManager.Utility.CallbackPriority.EARLY,
 		postNewLevel)
+	modReference:AddPriorityCallback(ModCallbacks.MC_POST_NEW_LEVEL, SaveManager.Utility.CallbackPriority.LATE,
+		function()
+			SaveManager.Save()
+		end)
 	modReference:AddPriorityCallback(ModCallbacks.MC_PRE_GAME_EXIT, SaveManager.Utility.CallbackPriority.LATE,
 		preGameExit)
 	modReference:AddPriorityCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, SaveManager.Utility.CallbackPriority.LATE,
@@ -1982,9 +1984,11 @@ local function getRespectiveSave(ent, noHourglass, initDataIfNotPresent, saveTyp
 		---@diagnostic disable-next-line: missing-return-value
 		return
 	end
-	if ent then
+	if ent and type(ent) == "userdata" then
 		---@diagnostic disable-next-line: param-type-mismatch
-		if (type(ent) == "userdata" and not SaveManager.Utility.IsEntitySaveAllowed(ent, saveType)) then
+		local isAllowed, message = SaveManager.Utility.IsEntitySaveAllowed(ent, saveType)
+		if not isAllowed then
+				SaveManager.Utility.SendError(message)
 			---@diagnostic disable-next-line: missing-return-value
 			return
 		--Technically it doesn't make sense to allow "grid saves" for run and floor saves but they're nothing more than arbitrary integers.
