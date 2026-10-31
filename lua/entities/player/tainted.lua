@@ -20,7 +20,7 @@ local function IsBombDash(player, data)
 end
 
 local function IsDashing(data)
-    return EdithRestored:IsEdithSliding(data) and data.RamState
+    return EdithRestored:IsEdithSliding(data) == true and data.RamState == true
 end 
 
 ---@param player EntityPlayer
@@ -152,11 +152,6 @@ function EdithRestored:AddExtraTilesToSlide(data, slides)
     data.EdithTargetMovementPosition = data.EdithTargetMovementPosition + ButtomParams
 end
 
----@param ent Entity
-local function IsEnemy(ent)
-    return ent:IsActiveEnemy() and ent:IsVulnerableEnemy()
-end
-
 ---@param player EntityPlayer
 ---@param data table
 local function IsSlideFinished(player, data)
@@ -235,11 +230,10 @@ function Tainted:OnTaintedUpdate(player)
     if not data.RamState then
         local ChargeAdd = EdithRestored:IsEdithSliding(data) and 1 or 2       
         data.SlideCharge = Helpers.Clamp(data.SlideCharge + ChargeAdd, 0, 100)
-    end  
+    end
 
     if data.SlideCharge >= 100 and Input.IsActionTriggered(ButtonAction.ACTION_BOMB, ctrlIdx) and not IsDashing(data) then
-        data.RamState = true
-        data.SlideCharge = 0
+        data.RamState = not data.RamState
         sfx:Play(SoundEffect.SOUND_STONE_IMPACT)
         SetDashColor(player, data)
     end
@@ -248,6 +242,13 @@ function Tainted:OnTaintedUpdate(player)
     local grids = data.RamState and 5 or 1
 
     EdithRestored:EdithGridMovement(player, data, speed, grids)
+
+    -- print("is sliding:", EdithRestored:IsEdithSliding(data))
+    -- print("ram state:", data.RamState)
+
+    if EdithRestored:IsEdithSliding(data) and data.RamState then -- Why does the function doesn't work but directly checking its only 2 booleans does?? no fucking idea
+        data.SlideCharge = 0
+    end
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Tainted.OnTaintedUpdate)
 
@@ -262,7 +263,7 @@ function Tainted:ChargeBarRender(player)
 	data.ChargeBar.Offset = Vector(-12 * player.SpriteScale.X, -35 * player.SpriteScale.Y)
 	HudHelper.RenderChargeBar(
 		data.ChargeBar,
-		data.SlideCharge,
+		not data.RamState and data.SlideCharge or 0,
 		100,
 		EdithRestored.Room():WorldToScreenPosition(player.Position)
 	)
@@ -304,11 +305,13 @@ EdithRestored:AddCallback(ModCallbacks.MC_PRE_PLAYER_TAKE_DMG, Tainted.NegateDas
 function Tainted:OnDashGridCollision(player, index, grid)
     if not IsTaintedEdith(player) then return end
     if not grid then return end
+    local data = EdithRestored:GetData(player)
 
     if grid:ToPoop() then
         grid:Destroy()
+        EdithRestored:StopSlide(data)
+        data.RamState = false
     else
-        local data = EdithRestored:GetData(player)
         EdithRestored:StopSlide(data)
         TriggerCollideExplosion(player)
         data.RamState = false
@@ -319,7 +322,7 @@ end
 EdithRestored:AddCallback(ModCallbacks.MC_PLAYER_GRID_COLLISION, Tainted.OnDashGridCollision)
 
 ---@param collider Entity
-function Tainted:OnCollectibleCollision(collider)
+function Tainted:OnCollectibleCollision(pickup, collider)
     local player = collider:ToPlayer()
 
     if not player then return end
@@ -385,17 +388,10 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Tainted.ResetRamStateOn
 
 function Tainted:edith_Stats(player, cacheFlag)
 	if IsTaintedEdith(player) then -- If the player is Edith it will apply her specific stats
-		if cacheFlag == CacheFlag.CACHE_DAMAGE then
-			player.Damage = player.Damage * 1.1
-		end
-	--e3	Helpers.ChangePepperValue(player)
+        player.Damage = player.Damage * 1.1
 	end
-	-- if cacheFlag == CacheFlag.CACHE_SPEED and Helpers.IsPlayerEdith(player) 
-	-- and not EdithRestored.Room():HasCurseMist() then
-	-- 	player.MoveSpeed = math.max(0.3, player.MoveSpeed)
-	-- end
 end
-EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, Tainted.edith_Stats)
+EdithRestored:AddCallback(ModCallbacks.MC_EVALUATE_CACHE, Tainted.edith_Stats, CacheFlag.CACHE_DAMAGE)
 
 ---@param player EntityPlayer
 ---@param damage number
