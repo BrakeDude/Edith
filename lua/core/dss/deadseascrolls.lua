@@ -190,10 +190,10 @@ end
 local function InitDisableMenu(t)
 	local itemTogglesMenu = {}
 	itemTogglesMenu = {
-		{ str = "choose which " .. t, fsize = 2, nosel = true },
-		{ str = "show up", fsize = 2, nosel = true },
+		{ str = "choose which " .. t,        fsize = 2, nosel = true },
+		{ str = "show up",                   fsize = 2, nosel = true },
 		{ str = "(disabled - in blacklist)", fsize = 2, nosel = true },
-		{ str = "", fsize = 2, nosel = true },
+		{ str = "",                          fsize = 2, nosel = true },
 	}
 
 	local lookupTable = EdithRestored.Enums.CollectibleType
@@ -415,7 +415,7 @@ local edithdirectory = {
 
 			-- The "dest" option, if specified, means that pressing the button will send you to that page of your menu.
 			-- If using the "openmenu" action, "dest" will pick which item of that menu you are sent to.
-			{ str = "settings", dest = "settings" },
+			{ str = "settings",    dest = "settings" },
 
 			{
 				str = "items toggles",
@@ -551,7 +551,7 @@ local edithdirectory = {
 
 local edithdirectorykey = {
 	Item = edithdirectory.main, -- This is the initial item of the menu, generally you want to set it to your main item
-	Main = "main", -- The main item of the menu is the item that gets opened first when opening your mod's menu.
+	Main = "main",           -- The main item of the menu is the item that gets opened first when opening your mod's menu.
 
 	-- These are default state variables for the menu; they're important to have in here, but you don't need to change them at all.
 	Idle = false,
@@ -811,10 +811,11 @@ local function UpdateSettingsMenu(show)
 			end, true)
 		end
 		if not ImGui.ElementExists("edithAllowSlideScreenShake") then
-			ImGui.AddCheckbox("edithWindowSettings", "edithAllowSlideScreenShake", "Screen shake on sliding", function(val)
-				EdithRestored:AddDefaultFileSave("AllowSlideScreenShake", val)
-				EdithRestored.SaveManager.Save()
-			end, true)
+			ImGui.AddCheckbox("edithWindowSettings", "edithAllowSlideScreenShake", "Screen shake on sliding",
+				function(val)
+					EdithRestored:AddDefaultFileSave("AllowSlideScreenShake", val)
+					EdithRestored.SaveManager.Save()
+				end, true)
 		end
 
 		if not ImGui.ElementExists("edithTargetColorRGB") then
@@ -838,7 +839,8 @@ local function UpdateSettingsMenu(show)
 		ImGui.AddCallback("edithWindowSettings", ImGuiCallback.Render, function()
 			ImGui.UpdateData("edithPushToSlide", ImGuiData.Value, EdithRestored:GetDefaultFileSave("AllowHolding"))
 			ImGui.UpdateData("edithAllowBombs", ImGuiData.Value, EdithRestored:GetDefaultFileSave("OnlyStomps"))
-			ImGui.UpdateData("edithAllowSlideScreenShake", ImGuiData.Value, EdithRestored:GetDefaultFileSave("AllowSlideScreenShake"))
+			ImGui.UpdateData("edithAllowSlideScreenShake", ImGuiData.Value,
+				EdithRestored:GetDefaultFileSave("AllowSlideScreenShake"))
 			local rgb = EdithRestored:GetDefaultFileSave("TargetColor")
 			ImGui.UpdateData("edithTargetColorRGB", ImGuiData.ColorValues, { rgb.R / 255, rgb.G / 255, rgb.B / 255 })
 		end)
@@ -1435,9 +1437,10 @@ local function InitImGuiMenu()
 	for tab, prefix in pairs({
 		["edithUnlocksA"] = "edithMarksA", --[["edithUnlocksB"] = "edithMarksB"]]
 	}) do
-		local pType = EdithRestored.Enums.PlayerType.EDITH --prefix == "edithMarksA" and EdithRestored.Enums.PlayerType.EDITH
+		local pType = EdithRestored.Enums.PlayerType
+		.EDITH                                       --prefix == "edithMarksA" and EdithRestored.Enums.PlayerType.EDITH
 		--or EdithRestored.Enums.PlayerType.EDITH_B
-		local achievements = marksA --prefix == "edithMarksA" and marksA or marksB
+		local achievements = marksA                  --prefix == "edithMarksA" and 	 or marksB
 		for ach, data in pairs(achievements) do
 			if data.Name ~= nil and data.Difficulty ~= nil and ach > 0 then
 				if ImGui.ElementExists(prefix .. data.Name) then
@@ -1491,11 +1494,13 @@ local function InitImGuiMenu()
 			Isaac.ExecuteCommand("lockachievement " .. EdithRestored.Enums.Achievements.CompletionMarks.SOUL_EDITH)
 		elseif not pgd:Unlocked(EdithRestored.Enums.Achievements.CompletionMarks.SOUL_EDITH) then
 			for key, val in pairs(marksA) do
-				if not pgd:Unlocked(key) then
-					Isaac.ExecuteCommand("achievement " .. key)
-				end
-				for _, mark in pairs(val.Marks) do
-					Isaac.SetCompletionMark(EdithRestored.Enums.PlayerType.EDITH, mark, 2)
+				if key ~= EdithRestored.Enums.Achievements.CompletionMarks.SOUL_EDITH then
+					if not pgd:Unlocked(key) then
+						Isaac.ExecuteCommand("achievement " .. key)
+					end
+					for _, mark in pairs(val.Marks) do
+						Isaac.SetCompletionMark(EdithRestored.Enums.PlayerType.EDITH, mark, 2)
+					end
 				end
 			end
 			Isaac.ExecuteCommand("achievement " .. EdithRestored.Enums.Achievements.CompletionMarks.SOUL_EDITH)

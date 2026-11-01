@@ -1,7 +1,7 @@
 local Mod = EdithRestored
 local emptyShaderName = "HudHelperEmptyShader"
 
-local VERSION = 1.17 -- (v1.1.7) do not modify
+local VERSION = 1.18 -- (v1.1.8) do not modify
 local game = Game()
 local itemConfig = Isaac.GetItemConfig()
 
@@ -654,7 +654,10 @@ local function InitFunctions()
 		--Tainted BB + Others
 		HudHelper.Utils.ForEachPlayer(function(player)
 			local playerType = player:GetPlayerType()
-			if hasBB and playerType ~= PlayerType.PLAYER_BLUEBABY_B then
+			if hasBB
+				and playerType ~= PlayerType.PLAYER_BLUEBABY_B
+				and player.Variant == PlayerVariant.PLAYER
+			then
 				offset = 9
 				poopAndBombsOffset = 9
 			end
