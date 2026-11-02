@@ -55,7 +55,7 @@ local function TriggerCollideExplosion(player)
 
     game:BombExplosionEffects(player.Position, 100, player.TearFlags, Color.Default, player, 1, false, false)
 
-    EdithRestored:StopSlide(data)
+    EdithRestored:StopSlide(player, data)
     if not player:HasGoldenBomb() then
         player:AddBombs(-1)
     end
@@ -234,6 +234,7 @@ function Tainted:OnTaintedUpdate(player)
 
     if data.SlideCharge >= 100 and Input.IsActionTriggered(ButtonAction.ACTION_BOMB, ctrlIdx) and not IsDashing(data) then
         data.RamState = not data.RamState
+        EdithRestored:StopSlide(player, data, true)
         sfx:Play(SoundEffect.SOUND_STONE_IMPACT)
         SetDashColor(player, data)
     end
@@ -309,10 +310,10 @@ function Tainted:OnDashGridCollision(player, index, grid)
 
     if grid:ToPoop() then
         grid:Destroy()
-        EdithRestored:StopSlide(data)
+        EdithRestored:StopSlide(player, data)
         data.RamState = false
     else
-        EdithRestored:StopSlide(data)
+        EdithRestored:StopSlide(player, data)
         TriggerCollideExplosion(player)
         data.RamState = false
     end
@@ -333,7 +334,7 @@ function Tainted:OnCollectibleCollision(pickup, collider)
         data.RamState = false
     end
 
-    EdithRestored:StopSlide(data)
+    EdithRestored:StopSlide(player, data)
 end
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PICKUP_COLLISION, Tainted.OnCollectibleCollision, PickupVariant.PICKUP_COLLECTIBLE)
 
@@ -356,7 +357,7 @@ local function ManageTEdithDashCollide(player, data, collider)
 
     if collider.HitPoints > data.StompDamage then
         data.RamState = false
-        EdithRestored:StopSlide(data)
+        EdithRestored:StopSlide(player, data)
     end
 
     player:SetMinDamageCooldown(30)
@@ -373,7 +374,7 @@ function Tainted:OnPlayerCollision(player, collider)
     ManageTEdithDashCollide(player, data, collider)
 
     if not data.RamState then
-        EdithRestored:StopSlide(data)
+        EdithRestored:StopSlide(player, data)
     end
 end 
 EdithRestored:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Tainted.OnPlayerCollision)
@@ -383,7 +384,7 @@ function Tainted:ResetRamStateOnNewRoom()
         if IsTaintedEdith(player) then
             local data = EdithRestored:GetData(player)
             
-            EdithRestored:StopSlide(data)
+            EdithRestored:StopSlide(player, data)
             data.RamState = false
         end
     end

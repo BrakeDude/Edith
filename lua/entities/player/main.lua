@@ -392,8 +392,7 @@ local function EdithTriggerSlide(player, data, gridMult, forcedDir, forcedVec)
 	local isPressingUp
 	local isPressingDown
 	local controllerIndex = player.ControllerIndex
-	local allowHolding = Helpers.IsPureEdith(player) and EdithRestored:GetDefaultFileSave("AllowHolding")
-
+	local allowHolding = (Helpers.IsPureEdith(player) or Helpers.IsTaintedEdith(player) and data.RamState ~= true) and EdithRestored:GetDefaultFileSave("AllowHolding")
 	-- I can't believe this actually works
 	local ActionFunc = allowHolding and Input.IsActionPressed or Input.IsActionTriggered
 
@@ -619,11 +618,16 @@ function EdithRestored:IsEdithSliding(data)
 	return data.EdithTargetMovementDirection ~= nil
 end
 
+---@param player EntityPlayer
 ---@param data table
-function EdithRestored:StopSlide(data)
+---@param deadStop boolean?
+function EdithRestored:StopSlide(player, data, deadStop)
 	data.EdithTargetMovementPosition = nil
 	data.EdithTargetMovementDirection = nil
 	data.SlideHitBlacklist = {}
+	if deadStop == true then
+		player.Velocity = Vector.Zero
+	end
 end
 
 ---@param player EntityPlayer
@@ -1454,6 +1458,7 @@ function Player:OnCollectibleCollission(pickup, collider)
 	local player = collider:ToPlayer() 
 
 	if not player then return end
+	if pickup:IsShopItem() then return end
 	if not Helpers.IsPureEdith(player) then return end
 
 	local data = EdithRestored:GetData(player)

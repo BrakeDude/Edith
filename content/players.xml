@@ -16,7 +16,7 @@
        <player name ="Redith" skin="Character_001_TaintedRedith.png" 
           armor="6"
           nameimage="playername_Edith.png" modcostume="151"
-          portrait="playerportrait_Edith_B.png" skinColor="-1"
+          portrait="playerportrait_Edith_B.png" skinColor="1"
           bombs="1"
           healthtype="1"
           birthright="Reflect their gaze" costumeSuffix="edithb"
