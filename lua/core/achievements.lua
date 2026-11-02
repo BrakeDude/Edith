@@ -23,7 +23,7 @@ local function UnlockEdith(doUnlock, ach, force)
 	if doUnlock then
 		if
 			EdithRestored.Enums.Achievements.Unlocks.Characters[ach]
-			and EdithRestored.Enums.Achievements.Unlocks.Characters[ach].Condition()
+			and EdithRestored.Enums.Achievements.Unlocks.Characters[ach].SyncCondition()
 		then
 			Helpers.UnlockAchievement(ach, force)
 		end
@@ -34,7 +34,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_SAVESLOT_LOAD, function(_, slot, 
 	UnlockEdith(selected, EdithRestored.Enums.Achievements.Characters.EDITH, true)
 	--UnlockEdith(selected, EdithRestored.Enums.Achievements.Characters.EDITH_B, true)
 	for ach, data in pairs(EdithRestored.Enums.Achievements.Unlocks.Misc) do
-		if data.Condition() then
+		if data.SyncCondition() then
 			Helpers.UnlockAchievement(ach)
 		end
 	end
@@ -44,7 +44,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_GAME_STARTED, function(_, load)
 	UnlockEdith(true, EdithRestored.Enums.Achievements.Characters.EDITH, true)
 	--UnlockEdith(true, EdithRestored.Enums.Achievements.Characters.EDITH_B, true)
 	for ach, data in pairs(EdithRestored.Enums.Achievements.Unlocks.Misc) do
-		if data.Condition() then
+		if data.SyncCondition() then
 			Helpers.UnlockAchievement(ach)
 		end
 	end
@@ -59,14 +59,14 @@ end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_COMPLETION_EVENT, function(_, mark)
 	if PlayerManager.AnyoneIsPlayerType(EdithRestored.Enums.PlayerType.EDITH) then
 		for ach_mark, data in pairs(marksA) do
-			if data.Condition() then
+			if data.SyncCondition() then
 				Helpers.UnlockAchievement(ach_mark)
 			end
 		end
 	end
 	--[[if PlayerManager.AnyoneIsPlayerType(EdithRestored.Enums.PlayerType.EDITH_B) then
 		for ach_mark, data in pairs(marksB) do
-			if data.Condition() then
+			if data.SyncCondition() then
 				Helpers.UnlockAchievement(ach_mark)
 			end
 		end
@@ -75,7 +75,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_COMPLETION_EVENT, function(_, mar
 		Helpers.UnlockAchievement(EdithRestored.Enums.Achievements.Characters.EDITH)
 	end
 	for ach, data in pairs(EdithRestored.Enums.Achievements.Unlocks.Misc) do
-		if data.Condition() then
+		if data.SyncCondition() then
 			Helpers.UnlockAchievement(ach)
 		end
 	end

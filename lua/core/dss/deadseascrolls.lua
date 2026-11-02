@@ -1447,20 +1447,31 @@ local function InitImGuiMenu()
 					ImGui.RemoveElement(prefix .. data.Name)
 				end
 				ImGui.AddCombobox(tab, prefix .. data.Name, data.Name, function(index, val)
+					local hasGreedier = false
 					if index == 1 then
 						for _, mark in pairs(data.Marks) do
+							if mark == CompletionType.ULTRA_GREEDIER then
+								hasGreedier = true
+							end
 							local diff = data.Difficulty ~= nil and data.Difficulty or 2
 							Isaac.SetCompletionMark(pType, mark, math.max(diff, Isaac.GetCompletionMark(pType, mark)))
 						end
 						UnLockAchievementA(ach)
+						if data.Unlock then
+							data.Unlock()
+						end
 					else
 						for _, mark in pairs(data.Marks) do
-							Isaac.SetCompletionMark(pType, mark, 0)
+							if mark == CompletionType.ULTRA_GREED or mark == CompletionType.ULTRA_GREEDIER then
+								Isaac.SetCompletionMarks({PlayerType = pType, UltraGreed = 0})
+							else
+								Isaac.SetCompletionMark(pType, mark, 0)
+							end
 						end
 						LockAchievementA(ach)
-					end
-					if data.Function then
-						data.Function(index)
+						if data.Lock then
+							data.Lock()
+						end
 					end
 					UpdateTogglesMenu(EdithRestored.SaveManager.Utility.IsDataInitialized() and Isaac.IsInGame())
 				end, { "Locked", "Unlocked" }, 0, true)
