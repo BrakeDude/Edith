@@ -923,6 +923,8 @@ function Helpers.SpawnEdithTarget(player)
 		data.EdithJumpTarget.SpawnerEntity = player
 		data.EdithJumpTarget.GridCollisionClass = EntityGridCollisionClass.GRIDCOLL_WALLS
 		data.EdithJumpTarget:GetSprite():Play("Blink", true)
+		
+		EdithRestored:GetData(data.EdithJumpTarget).Track = true
 
 		-- target.Color = Color(1, 1, 1, 0, 0, 0, 0)
 		if TargetColor then
@@ -932,6 +934,21 @@ function Helpers.SpawnEdithTarget(player)
 			data.EdithJumpTarget.Color = Color(155 / 255, 0, 0, 1, 0, 0, 0)
 		end
 	end
+end
+
+---@param player EntityPlayer
+---@param track boolean
+function Helpers.SetTrackEdithTarget(player, track)
+	local target = Helpers.GetEdithTarget(player)
+	if target ~= nil then
+		EdithRestored:GetData(target).Track = type(track) == "boolean" and track or false
+	end
+end
+
+---@param target Entity
+---@return boolean
+function Helpers.IsEdithTargetTracked(target)
+	return EdithRestored:GetData(target).Track == true
 end
 
 ---@param player EntityPlayer

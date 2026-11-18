@@ -226,7 +226,7 @@ local function CheckEdithsCollisionWithSlots(player, data)
 	local isCollidingWithSlot = false
 
 	for _, slot in ipairs(slots) do
-		if slot:GetData().sizeMulti then
+		if EdithRestored:GetData(slot).sizeMulti then
 			if
 				(math.abs(slot.Position.X - player.Position.X) ^ 2 <= (slot.Size * slot.SizeMulti.X + player.Size) ^ 2)
 				and (
@@ -779,6 +779,12 @@ function Player:TargetJumpUpdate(target)
 		target:Remove()
 		return
 	end
+	local checkTarget = Helpers.GetEdithTarget(player)
+	
+	if checkTarget == nil or GetPtrHash(checkTarget) ~= GetPtrHash(target) then
+		target:Remove()
+		return
+	end
 
 	if EdithRestored:GetData(player).TargetJumpPos then
 		target.Velocity = Vector.Zero
@@ -1128,6 +1134,7 @@ function Player:OnUpdatePlayer(player)
 end
 EdithRestored:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Player.OnUpdatePlayer, 0)
 
+---@param player EntityPlayer
 ---@param jumpData JumpData
 function Player:Landing(player, jumpData, inPit)
 	local data = EdithRestored:GetData(player)
@@ -1135,6 +1142,9 @@ function Player:Landing(player, jumpData, inPit)
 		local prevBombStomp = data.BombStomp
 		if data.AfterPitfall == false then
 			data.BombStomp = nil
+		end
+		if player:GetDamageCountdown() <= 0 then
+			player:SetMinDamageCooldown(1)
 		end
 		Helpers.Stomp(player, 1, nil, not data.PostRocketRide and data.BombStomp, Helpers.IsPureEdith(player), {Tooth = true})
 		if data.AfterPitfall == false then
@@ -1687,7 +1697,7 @@ function Player:OnMontezumaLaserUpdate(laser)
 		return
 	end
 
-	local laserData = laser:GetData()
+	local laserData = EdithRestored:GetData(laser)
 	if not laserData.IsFakeMontezumaLaserEdith then
 		local spawningRotation
 		if not data.EdithTargetMovementDirection then
@@ -1699,8 +1709,9 @@ function Player:OnMontezumaLaserUpdate(laser)
 		local newLaser = EntityLaser.ShootAngle(12, player.Position, spawningRotation, laser.Timeout, Vector.Zero, player)
 		newLaser:SetMaxDistance(laser.MaxDistance)
 
-		newLaser:GetData().IsFakeMontezumaLaserEdith = true
-		newLaser:GetData().TargetRotation = spawningRotation
+		local newLaserData = EdithRestored:GetData(newLaser)
+		newLaserData.IsFakeMontezumaLaserEdith = true
+		newLaserData.TargetRotation = spawningRotation
 
 		laser:Remove()
 		return
@@ -1748,7 +1759,7 @@ function Player:OnMontezumaLaserUpdate(laser)
 	--Rotation the laser should have
 	local trueRotation = (-data.EdithTargetMovementDirection):GetAngleDegrees()
 
-	if laser:GetData().TargetRotation ~= trueRotation then
+	if laserData.TargetRotation ~= trueRotation then
 		--Rotate
 		local chosenRotation
 		local laserToTrue = trueRotation - laser.Angle
@@ -1774,7 +1785,7 @@ function Player:OnMontezumaLaserUpdate(laser)
 		end
 
 		laser:SetActiveRotation(0, chosenRotation, chosenVelocity, false)
-		laser:GetData().TargetRotation = trueRotation
+		laserData.TargetRotation = trueRotation
 	end
 end
 
@@ -1782,7 +1793,7 @@ EdithRestored:AddCallback(ModCallbacks.MC_POST_LASER_UPDATE, Player.OnMontezumaL
 
 ---@param effect EntityEffect
 function Player:OnCustomDustInit(effect)
-	local dustData = effect:GetData()
+	local dustData = EdithRestored:GetData(effect)
 	local Rotation = math.random(2) == 2 and 1 or -1
 	local color = effect.Color
 	local rng = effect:GetDropRNG()
@@ -1803,7 +1814,7 @@ EdithRestored:AddCallback(
 
 ---@param effect EntityEffect
 function Player:OnCustomDustCloudUpdate(effect)
-	local data = effect:GetData()
+	local data = EdithRestored:GetData(effect)
 	effect.SpriteRotation = effect.SpriteRotation + data.RotationDir
 	effect.SpriteScale = effect.SpriteScale + Vector.One * 0.05
 	local color = effect.Color
@@ -1870,7 +1881,9 @@ function Player:TargetCamera()
 		)
 	)
 	do
-		list[#list + 1] = entity
+		if Helpers.IsEdithTargetTracked(entity) then
+			list[#list + 1] = entity
+		end
 	end
 	if #list > 0 then
 		for _, player in ipairs(Helpers.GetPlayers(true)) do
@@ -1910,6 +1923,7 @@ EdithRestored:AddPriorityCallback(
 ---@param player EntityPlayer
 ---@param config PassedJumpConfig
 function Player:PreJump(player, config)
+	Helpers.SetTrackEdithTarget(player, false)
 	EdithRestored:GetData(player).EdithTargetMovementPosition = nil
 end
 

@@ -105,7 +105,7 @@ function Electrifier:onDeath(slot)
         pickup.SpawnerVariant = EdithRestored.Enums.Slots.ELECTRIFIER.Variant
         slot.Position = pickup.Position
         ChangeAltarSprite(pickup)
-        slot:GetData().RemoveTimer = 5
+        EdithRestored:GetData(slot).RemoveTimer = 5
         SetCharges(0)
     else
         local gotTrinket = false
@@ -175,10 +175,10 @@ function Electrifier:onUpdate(slot)
             Isaac.Spawn(EntityType.ENTITY_PICKUP, PickupVariant.PICKUP_COIN, CoinSubType.COIN_PENNY, slot.Position, EntityPickup.GetRandomPickupVelocity(slot.Position, rng, 1), nil)
         end
     end
-    if slot:GetData().RemoveTimer then
-        local data = slot:GetData()
-        data.RemoveTimer = data.RemoveTimer - 1
-        if data.RemoveTimer <= 0 then
+    local slotData = EdithRestored:GetData(slot)
+    if slotData.RemoveTimer then
+        slotData.RemoveTimer = slotData.RemoveTimer - 1
+        if slotData.RemoveTimer <= 0 then
             slot:Remove()
         end
     end

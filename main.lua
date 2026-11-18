@@ -49,6 +49,7 @@ if not isRepentance or not isRepentogon then
 end
 --#endregion
 
+include("lua.extraLibs.getdatacache")
 local LOCAL_TSIL = require("lua.extraLibs.loi.TSIL")
 LOCAL_TSIL.Init("lua.extraLibs.loi")
 include("lua.extraLibs.APIs.custom_bomb_flags")

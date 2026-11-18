@@ -84,39 +84,11 @@ function EdithRestored:Log(message, logFile)
 	end
 end
 
----@type table[]
-local getData = {}
-
----Slightly faster than calling GetData, a micromanagement at best
----
----However GetData() is wiped on POST_ENTITY_REMOVE, so this also helps retain the data until after entity removal
 ---@param ent Entity
 ---@return table
 function EdithRestored:GetData(ent)
-	if not ent then
-		return {}
-	end
-	local ptrHash = GetPtrHash(ent)
-	local data = getData[ptrHash]
-	if not data then
-		local newData = {}
-		getData[ptrHash] = newData
-		data = newData
-	end
-	return data
+	return GetDataCache.GetEntityData(ent)
 end
-
----@param ent Entity
----@return table?
-function EdithRestored:TryGetData(ent)
-	local ptrHash = GetPtrHash(ent)
-	local data = getData[ptrHash]
-	return data
-end
-
-EdithRestored:AddPriorityCallback(ModCallbacks.MC_POST_ENTITY_REMOVE, CallbackPriority.LATE, function(_, ent)
-	getData[GetPtrHash(ent)] = nil
-end)
 
 ---@param key string
 ---@return integer | boolean?
